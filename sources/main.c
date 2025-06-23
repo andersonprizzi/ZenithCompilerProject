@@ -12,6 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "global.h"
+#include "logger.h"
 #include "error.h"
 #include "lexer.h"
 #include "parser.h"
@@ -47,8 +48,29 @@ int AC71_ValidateFilePointers() {
 // MAIN FUNCTION                                                           //
 /////////////////////////////////////////////////////////////////////////////
 
-int main() {
-    AC71_OpenSourceFile("font.c","output.txt");
+int main(int argc, char *argv[]) {
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        return 1;
+    }
+
+    const char *input_path = argv[1];
+    const char *output_path = argv[2];
+
+    inputFile = fopen(input_path, "r");
+    if (!inputFile) {
+        perror("Error opening input file.");
+        return 1;
+    }
+
+    outputFile = fopen(output_path, "w");
+    if (!outputFile) {
+        perror("Error opening output file.");
+        fclose(inputFile);
+        return 1;
+    }
+
+    //AC71_OpenSourceFile("font.c","output.txt");
     if (!AC71_ValidateFilePointers()) return 1;
 
     columnAux = column;
