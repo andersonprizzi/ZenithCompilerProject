@@ -1,0 +1,23 @@
+# Ignore compiled binary files
+*.exe
+*.o
+*.obj
+*.out
+
+# Ignore build directory (you can change this if you use a different name)
+build/
+
+# Ignore backup files from editors
+*~
+*.bak
+*.swp
+*.tmp
+
+# Ignore VS Code settings (optional: useful if team members have different setups)
+.vscode/
+
+# macOS metadata files (if working on mac)
+.DS_Store
+
+# Windows thumbnail cache
+Thumbs.db
