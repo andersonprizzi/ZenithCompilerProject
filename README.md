@@ -4,7 +4,7 @@ This project, named C Compiler 71, is a C language compiler currently under acti
 
 
 
-## Project structure
+## Structure
 
 Overview of the project’s directory layout, detailing how source code, headers, data, and scripts are structured.
 
@@ -17,12 +17,15 @@ Overview of the project’s directory layout, detailing how source code, headers
 
 
 
-## Building and running
-
+## Build
 On Windows, to build the project, run:
 ```bat
 ./scripts/build_on_windows.bat
 ```
+
+
+
+## Run
 
 On Windows, to execute the compiler, run:
 ```bat
@@ -40,6 +43,6 @@ The compiler expects two command-line arguments:
 ```
 
 ## Notes
-- Ensure that gcc is installed and available in your system's PATH environment variable.
+- Ensure that `gcc` is installed and available in your system's PATH environment variable.
 - This project is a work in progress and may not yet support the full C language specification.
 - Contributions, bug reports, and suggestions are welcome and appreciated!

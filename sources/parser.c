@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "global.h"
+#include "logger.h"
 #include "error.h"
 #include "lexer.h"
 #include "parser.h"
@@ -131,7 +132,7 @@ int primary_expression() {
         tokenNumber == TokenString
     ) {
         getToken();
-        AC71_ReportOperation("Recognized a primary expression.");
+        CC71_LogMessage(LOG_INFO, "Recognized a primary expression.");
         return TRUE;
 
     } else if (tokenNumber == TokenOpenParentheses) {
@@ -370,7 +371,7 @@ int assignment_expression() {
 int T() {
     if (tokenNumber == TokenIdentifier) {
         getToken();
-        AC71_ReportOperation("Recognized an identifier.");
+        CC71_LogMessage(LOG_INFO, "Recognized an identifier.");
         return TRUE;
     }
     return FALSE;
@@ -425,7 +426,7 @@ int unary_operator() {
         tokenNumber == TokenLogicalNot
     ) {
         getToken();
-        AC71_ReportOperation("Recognized a unary operator.");
+        CC71_LogMessage(LOG_INFO, "Recognized a unary operator.");
         return TRUE;
     }
     return FALSE;
@@ -503,21 +504,21 @@ int expression_statement() {
 int selection_statement() {
     if (tokenNumber == TokenIf) {
         getToken();
-        AC71_ReportOperation("Recognized 'if'.");
+        CC71_LogMessage(LOG_INFO, "Recognized 'if'.");
 
         if (tokenNumber == TokenOpenParentheses) {
             getToken();
-            AC71_ReportOperation("Recognized '('.");
+            CC71_LogMessage(LOG_INFO, "Recognized '('.");
 
             if (expression()) {
-                AC71_ReportOperation("Recognized an expression.");
+                CC71_LogMessage(LOG_INFO, "Recognized an expression.");
 
                 if (tokenNumber == TokenCloseParentheses) {
                     getToken();
-                    AC71_ReportOperation("Recognized ')'.");
+                    CC71_LogMessage(LOG_INFO, "Recognized ')'.");
 
                     if(statement()) {
-                        AC71_ReportOperation("Recognized a statement.");
+                        CC71_LogMessage(LOG_INFO, "Recognized a statement.");
                         return TRUE;
                     } else {
                         AC71_ReportError(AC71_ERR_SYN_EXPECTED_CLOSE_PAREN, line, columnAux);
@@ -539,13 +540,13 @@ int selection_statement() {
 int compound_statement() {
     if (tokenNumber == TokenOpenBrace) {
         getToken();
-        AC71_ReportOperation("Recognized '{'.");
+        CC71_LogMessage(LOG_INFO, "Recognized '{'.");
 
         statement();
 
         if (tokenNumber == TokenCloseBrace) {
             getToken();
-            AC71_ReportOperation("Recognized '}'.");
+            CC71_LogMessage(LOG_INFO, "Recognized '}'.");
             return TRUE;
         }
     }

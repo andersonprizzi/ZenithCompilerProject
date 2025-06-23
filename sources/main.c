@@ -4,7 +4,7 @@
 
 /**
  * Developed by Anderson Pastore Rizzi.
- * Based on ANSI C Yacc Grammar.
+ * Based on Jeff Lee’s ANSI C grammar.
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
         return 1;
     }
-
     const char *input_path = argv[1];
     const char *output_path = argv[2];
 
