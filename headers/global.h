@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <conio.h>
 #include <stdlib.h>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -137,7 +136,7 @@
 
 #define FALSE 0
 #define TRUE 1
-#define MAX_TOKEN_LENGTH 20
+#define MAX_TOKEN_LENGTH 30
 
 
 
@@ -175,8 +174,8 @@ enum TokenType {
 
 extern char lex[20];
 
-extern int pos;
-extern int tokenNumber;
+extern int CC71_GlobalPosition;
+extern int CC71_GlobalTokenNumber;
 extern int line;
 extern int column;
 extern int columnAux;

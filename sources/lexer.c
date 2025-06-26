@@ -27,7 +27,7 @@ int palavra_reservada(char lex[]) {
 
 void marcaPosToken() {
 	pilhacon[topcontexto].posglobal=ftell(inputFile);
-	pilhacon[topcontexto].tkant = tokenNumber;
+	pilhacon[topcontexto].tkant = CC71_GlobalTokenNumber;
 	pilhacon[topcontexto].cant=currentChar;
     strcpy(pilhacon[topcontexto].lexant,lex);
     topcontexto++;
@@ -39,13 +39,13 @@ void restauraPosToken() {
     topcontexto--;
 	fseek(inputFile,pilhacon[topcontexto].posglobal,SEEK_SET);
     currentChar=pilhacon[topcontexto].cant;
-	tokenNumber = pilhacon[topcontexto].tkant;
+	CC71_GlobalTokenNumber = pilhacon[topcontexto].tkant;
     strcpy(lex,pilhacon[topcontexto].lexant);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void getNextChar() {
+void CC71_GetNextChar() {
     fread(&currentChar, 1, 1, inputFile);
 
     if (feof(inputFile)) {
@@ -64,7 +64,7 @@ void getNextChar() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void getToken() {
+void CC71_GetToken() {
     int estado = 0;
     int fim = 0;
     int posl = 0;
@@ -75,35 +75,35 @@ void getToken() {
        switch(estado){
             case 0:
                 columnAux = column;
-                // Reconhece e descarta coment�rios e reconhece divis�o.
+                // Reconhece e descarta comentários e reconhece divisão.
                 if (currentChar == '/') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece e descarta coment�rios de uma linha.
                     if (currentChar == '/') {
                         posl--;
-                        while (currentChar != '\n') getNextChar();
+                        while (currentChar != '\n') CC71_GetNextChar();
                         printf("The lexical analyzer found a line comment at line %d.\n", line);
-                        getNextChar();
+                        CC71_GetNextChar();
                         break;
                     }
 
-                    // Reconhece e descarta coment�rios de m�ltiplas linhas.
+                    // Reconhece e descarta coment�rios de múltiplas linhas.
                     else if (currentChar == '*') {
                         posl--;
                         int prev = 0;
                         int startingLine = line;
-                        getNextChar();
+                        CC71_GetNextChar();
 
                         while (1) {
                             if (currentChar == -1) break; // EOF sem fechar coment�rio.
                             if (prev == '*' && currentChar == '/') {
                                 printf("The lexical analyzer found a multi-line comment starting at line %d and ending at line %d.\n", startingLine, line);
-                                getNextChar();
+                                CC71_GetNextChar();
                                 break;
                             }
                             prev = currentChar;
-                            getNextChar();
+                            CC71_GetNextChar();
                         }
                         break;
                     }
@@ -111,85 +111,121 @@ void getToken() {
                     // Reconhece o operador de divis�o.
                     else {
                         lex[posl] = '\0';
-                        tokenNumber = TokenDivision;
-                        getNextChar();
+                        CC71_GlobalTokenNumber = TokenDivision;
+                        CC71_GetNextChar();
                         return;
                     }
                 }
 
                 // Reconhece identificadores.
                 if ((currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z') || (currentChar == '_')) {
-                    getNextChar();
+                    CC71_GetNextChar();
                     estado = 1;
                     break;
                 }
 
-                // Reconhece n�meros inteiros e em ponto flutuante.
+                // Reconhece números inteiros e em ponto flutuante.
                 if ((currentChar >= '0') && (currentChar <= '9')) {
-                    int floatConstFlag = FALSE;
-                    while ((currentChar >= '0') && (currentChar <= '9') || (currentChar == '.')) {
-                        getNextChar();
-                        if((currentChar >= '0' && currentChar <= '9')) {
+                    int isFloat = FALSE;
+                    int hasDigitsAfterDot = FALSE;
+
+                    // Parte inteira
+                    while (currentChar >= '0' && currentChar <= '9') {
+                        if (posl < MAX_TOKEN_LENGTH - 1)
                             lex[posl++] = currentChar;
-                        } else if (currentChar == '.') {
-                            lex[posl++] = currentChar;
-                            floatConstFlag = TRUE;
+                        CC71_GetNextChar();
+                    }
+
+                    // Parte decimal
+                    if (currentChar == '.') {
+                        isFloat = TRUE;
+                        if (posl < MAX_TOKEN_LENGTH - 1) lex[posl++] = currentChar;
+                        CC71_GetNextChar();
+
+                        while (currentChar >= '0' && currentChar <= '9') {
+                            hasDigitsAfterDot = TRUE;
+                            if (posl < MAX_TOKEN_LENGTH - 1) lex[posl++] = currentChar;
+                            CC71_GetNextChar();
+                        }
+
+                        if (!hasDigitsAfterDot) {
+                            CC71_ReportError(CC71_ERR_LEX_INVALID_NUMBER, line, column);
+                            CC71_GlobalTokenNumber = -1;
+                            return;
                         }
                     }
 
                     lex[posl] = '\0';
-                    if (floatConstFlag) {
-                        tokenNumber = TokenFloatConst;
-                    } else {
-                        tokenNumber = TokenIntConst;
-                    }
+                    CC71_GlobalTokenNumber = isFloat ? TokenFloatConst : TokenIntConst;
                     return;
                 }
 
                 // Reconhece uma cadeia de caracteres.
                 if (currentChar == '"') {
-                    getNextChar();
-                    while (currentChar!='"') {
-                       lex[posl++]=currentChar;
-                       getNextChar();
+                    CC71_GetNextChar();
+                    while (currentChar != '"' && currentChar != -1) {
+                        if (currentChar == '\\') {
+                            CC71_GetNextChar();
+                            if (currentChar == 'n') {
+                                lex[posl++] = '\n';
+                            } else if (currentChar == 't') {
+                                lex[posl++] = '\t';
+                            } else if (currentChar == 'r') {
+                                lex[posl++] = '\r';
+                            } else if (currentChar == '\\') {
+                                lex[posl++] = '\\';
+                            } else if (currentChar == '"') {
+                                lex[posl++] = '"';
+                            } else {
+                                lex[posl++] = '\\';
+                                lex[posl++] = currentChar;
+                            }
+                        } else {
+                            lex[posl++] = currentChar;
+                        }
+
+                        // Proteção contra overflow
+                        if (posl >= MAX_TOKEN_LENGTH - 1) break;
+
+                        CC71_GetNextChar();
                     }
-                    getNextChar();
-                    lex[posl]='\0';
-                    tokenNumber = TokenString;
+                    CC71_GetNextChar(); // consume closing "
+                    lex[posl] = '\0';
+                    CC71_GlobalTokenNumber = TokenString;
                     return;
                 }
 
                 // Reconhece o operador de igualdade e atribui��o.
                 if (currentChar == '=') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece o operador de igualdade.
                     if (currentChar == '=') {
                        lex[posl++] = '=';
                        lex[posl]='\0';
-                       getNextChar();
-                       tokenNumber = TokenEqual;
+                       CC71_GetNextChar();
+                       CC71_GlobalTokenNumber = TokenEqual;
                        return;
                     }
 
                     // Reconhece o operador de atribui��o.
                     else {
                        lex[posl] = '\0';
-                       tokenNumber = TokenAssign;
+                       CC71_GlobalTokenNumber = TokenAssign;
                        return;
                     }
                 }
 
                 // Reconhece os operadores de incremento, atribui��o por adi��o e adi��o.
                  if (currentChar == '+') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece o operador de incremento.
                     if (currentChar == '+') {
                        lex[posl++]='+';
                        lex[posl]='\0';
-                       getNextChar();
-                       tokenNumber = TokenIncrement;
+                       CC71_GetNextChar();
+                       CC71_GlobalTokenNumber = TokenIncrement;
                        return;
                     }
 
@@ -197,29 +233,29 @@ void getToken() {
                     else if (currentChar == '=') {
                        lex[posl++] = '=';
                        lex[posl] = '\0';
-                       getNextChar();
-                       tokenNumber = TokenPlusAssign;
+                       CC71_GetNextChar();
+                       CC71_GlobalTokenNumber = TokenPlusAssign;
                        return;
                     }
 
                     // Reconhece o operador de adic�o.
                     else {
                        lex[posl] = '\0';
-                       tokenNumber = TokenPlus;
+                       CC71_GlobalTokenNumber = TokenPlus;
                        return;
                     }
                 }
 
                 // Reconhece os operadores de decremento e subtra��o.
                 if (currentChar == '-') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece o operador de decremento.
                     if (currentChar == '-') {
                         lex[posl++] = '-';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenDecrement;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenDecrement;
                         return;
                     }
 
@@ -227,15 +263,15 @@ void getToken() {
                     else if (currentChar == '>') {
                         lex[posl++] = '>';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenArrow;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenArrow;
                         return;
                     }
 
                     // Reconhece o operador de subtra��o.
                     else {
                        lex[posl] = '\0';
-                       tokenNumber = TokenMinus;
+                       CC71_GlobalTokenNumber = TokenMinus;
                        return;
                     }
                 }
@@ -243,28 +279,28 @@ void getToken() {
                 // Reconhece o operador de multiplica��o.
                 if (currentChar == '*') {
                     lex[posl]='\0';
-                    getNextChar();
-                    tokenNumber = TokenAsterisk;
+                    CC71_GetNextChar();
+                    CC71_GlobalTokenNumber = TokenAsterisk;
                     return;
                 }
 
                 // Reconhece o operador de m�dulo e %>.
                 if (currentChar == '%') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece o operador %>.
                     if (currentChar == '>') {
                         lex[posl++] = '>';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenCloseBrace;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenCloseBrace;
                         return;
                     }
 
                     // Reconhece o operador de m�dulo.
                     else {
                         lex[posl]='\0';
-                        tokenNumber = TokenMod;
+                        CC71_GlobalTokenNumber = TokenMod;
                         return;
                     }
                 }
@@ -272,223 +308,259 @@ void getToken() {
                 // Reconhece o operador de acesso de membro de estrutura.
                 if (currentChar == '.') {
                     lex[posl]='\0';
-                    getNextChar();
-                    tokenNumber = TokenDot;
+                    CC71_GetNextChar();
+                    CC71_GlobalTokenNumber = TokenDot;
                     return;
                 }
 
                 // Reconhece o operador de interroga��o do conjunto tern�rio.
                 if (currentChar == '?') {
                     lex[posl]='\0';
-                    getNextChar();
-                    tokenNumber = TokenQuestionMark;
+                    CC71_GetNextChar();
+                    CC71_GlobalTokenNumber = TokenQuestionMark;
                     return;
                 }
 
-                // Reconhece o operador l�gico 'and', operador bitwise 'and' e o operador 'address of'.
+                // Reconhece o operador lógico 'and', operador bitwise 'and' e o operador 'address of'.
                 if (currentChar == '&') {
-                    getNextChar();
-
-                    // Reconhece o operador l�gico 'and'.
+                    CC71_GetNextChar();
+                    
+                    // Reconhece o operador lógico 'and'.
                     if (currentChar == '&') {
-                       lex[posl++] = '&';
-                       lex[posl] = '\0';
-                       getNextChar();
-                       tokenNumber = TokenLogicalAnd;
-                       return;
+                        lex[posl++] = '&';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenLogicalAnd;
+                        return;
+                    }
+
+                    // Reconhece o operador &=.
+                    else if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenAndAssign;
+                        return;
                     }
 
                     // Reconhece o operador bitwise 'and' e o operador 'address of'.
                     else {
-                        lex[posl]='\0';
-                        tokenNumber = TokenBitwiseAnd_AddressOf;
+                        lex[posl] = '\0';
+                        CC71_GlobalTokenNumber = TokenBitwiseAnd_AddressOf;
                         return;
                     }
                 }
 
-                // Reconhece o operador l�gico 'or' e o operador bitwise 'or'.
+                // Reconhece o operador lógico 'or' e o operador bitwise 'or'.
                 if (currentChar == '|') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
-                    // Reconhece o operador l�gico 'or'.
+                    // Reconhece o operador lógico 'or'.
                     if (currentChar == '|') {
                        lex[posl++] = '|';
                        lex[posl] = '\0';
-                       getNextChar();
-                       tokenNumber = TokenLogicalOr;
+                       CC71_GetNextChar();
+                       CC71_GlobalTokenNumber = TokenLogicalOr;
                        return;
+                    }
+
+                    // Reconheceu o operador |=.
+                    else if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenOrAssign;
+                        return;
                     }
 
                     // Reconhece o operador bitwise 'or'.
                     else {
                         lex[posl]='\0';
-                        tokenNumber = TokenBitwiseOr;
+                        CC71_GlobalTokenNumber = TokenBitwiseOr;
                         return;
                     }
                 }
 
                 // Reconhece o operador bitwise 'xor'.
                 if (currentChar == '^') {
-                    lex[posl] = '\0';
-                    getNextChar();
-                    tokenNumber = TokenBitwiseXor;
-                    return;
+                    CC71_GetNextChar();
+
+                    if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenXorAssign;
+                        return;
+                    }
+                    else {
+                        lex[posl] = '\0';
+                        CC71_GlobalTokenNumber = TokenBitwiseXor;
+                        return;
+                    }
                 }
 
                 // Reconhece o operador bitwise 'not'.
                 if (currentChar == '~') {
                     lex[posl] = '\0';
-                    getNextChar();
-                    tokenNumber = TokenBitwiseNot;
+                    CC71_GetNextChar();
+                    CC71_GlobalTokenNumber = TokenBitwiseNot;
                     return;
                 }
 
                 // Reconhece o operador de deslocamento � direita, maior ou igual e maior que.
                 if (currentChar == '>') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
-                    // Reconhece o operador bitwise de deslocamento � direita.
                     if (currentChar == '>') {
-                        lex[posl++] = '>';
-                        lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenRightShift;
-                        return;
-                    }
+                        CC71_GetNextChar();
 
-                    // Reconhece o operador de compara��o maior ou igual.
+                        if (currentChar == '=') {
+                            lex[posl++] = '>';
+                            lex[posl++] = '=';
+                            lex[posl] = '\0';
+                            CC71_GetNextChar();
+                            CC71_GlobalTokenNumber = TokenRightShiftAssign;
+                            return;
+                        }
+                        else {
+                            lex[posl++] = '>';
+                            lex[posl] = '\0';
+                            CC71_GlobalTokenNumber = TokenRightShift;
+                            return;
+                        }
+                    }
                     else if (currentChar == '=') {
                         lex[posl++] = '=';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenGreaterEqual;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenGreaterEqual;
                         return;
                     }
-
-                    // Reconhece o operador de compara��o maior.
                     else {
-                       lex[posl] = '\0';
-                       tokenNumber = TokenGreaterThan;
-                       return;
+                    lex[posl] = '\0';
+                    CC71_GlobalTokenNumber = TokenGreaterThan;
+                    return;
                     }
                 }
 
                 // Reconhece o operador de deslocamento � esquerda, menor ou igual, menor que e <%.
                 if (currentChar == '<') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
-                    // Reconhece o operador bitwise de deslocamento � esquerda.
                     if (currentChar == '<') {
-                        lex[posl++] = '<';
-                        lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenLeftShift;
-                        return;
-                    }
+                        CC71_GetNextChar();
 
-                    // Reconhece o operador de compara��o menor ou igual.
+                        if (currentChar == '=') {
+                            lex[posl++] = '<';
+                            lex[posl++] = '=';
+                            lex[posl] = '\0';
+                            CC71_GetNextChar();
+                            CC71_GlobalTokenNumber = TokenLeftShiftAssign;
+                            return;
+                        }
+                        else {
+                            lex[posl++] = '<';
+                            lex[posl] = '\0';
+                            CC71_GlobalTokenNumber = TokenLeftShift;
+                            return;
+                        }
+                    }
                     else if (currentChar == '=') {
                         lex[posl++] = '=';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenLessEqual;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenLessEqual;
                         return;
                     }
-
-                    // Reconhece o operador <%.
                     else if (currentChar == '%') {
                         lex[posl++] = '%';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenOpenBrace;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenOpenBrace;
                         return;
                     }
-
-                    // Reconhece o operador <:.
-                    if (currentChar == ':') {
+                    else if (currentChar == ':') {
                         lex[posl++] = ':';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenOpenBracket;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenOpenBracket;
                         return;
                     }
-
-                    // Reconhece o operador de compara��o menor.
                     else {
-                       lex[posl] = '\0';
-                       tokenNumber = TokenLessThan;
-                       return;
+                    lex[posl] = '\0';
+                    CC71_GlobalTokenNumber = TokenLessThan;
+                    return;
                     }
                 }
 
                 // Reconhece o operador de diferen�a e nega��o l�gica.
                 if (currentChar == '!') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece o operador de diferen�a.
                     if (currentChar == '=') {
                         lex[posl++] = '=';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenNotEqual;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenNotEqual;
                         return;
                     }
 
                     // Reconhece o operador de nega��o l�gica.
                     else {
                        lex[posl] = '\0';
-                       tokenNumber = TokenLogicalNot;
+                       CC71_GlobalTokenNumber = TokenLogicalNot;
                        return;
                     }
                 }
 
                 // Reconhece os operadores dois pontos e :>.
                 if (currentChar == ':') {
-                    getNextChar();
+                    CC71_GetNextChar();
 
                     // Reconhece o operador :>.
                     if (currentChar == '>') {
                         lex[posl++] = '>';
                         lex[posl] = '\0';
-                        getNextChar();
-                        tokenNumber = TokenCloseBracket;
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenCloseBracket;
                         return;
                     }
 
                     // Reconhece o operador dois pontos.
                     else {
                        lex[posl] = '\0';
-                       tokenNumber = TokenColon;
+                       CC71_GlobalTokenNumber = TokenColon;
                        return;
                     }
                 }
 
-                if (currentChar=='['){lex[posl]='\0'; getNextChar(); tokenNumber=TokenOpenBracket; return;}
-                if (currentChar==']'){lex[posl]='\0'; getNextChar(); tokenNumber=TokenCloseBracket; return;}
-                if (currentChar=='('){lex[posl]='\0'; getNextChar(); tokenNumber=TokenOpenParentheses; return;}
-                if (currentChar==')'){lex[posl]='\0'; getNextChar(); tokenNumber=TokenCloseParentheses; return;}
-                if (currentChar=='{'){lex[posl]='\0'; getNextChar(); tokenNumber=TokenOpenBrace; return;}
-                if (currentChar=='}'){lex[posl]='\0'; getNextChar(); tokenNumber=TokenCloseBrace; return;}
-                if (currentChar==','){lex[posl]='\0'; getNextChar(); tokenNumber=TokenComma; return;}
-                if (currentChar==';'){lex[posl]='\0'; getNextChar(); tokenNumber=TokenSemicolon; return;}
-                if (currentChar==-1) {lex[posl]='\0'; getNextChar(); tokenNumber=TokenEndOfFile; return;}
-                if (currentChar==' ' || currentChar=='\n' || currentChar=='\t' || currentChar=='\r') {getNextChar();posl--;break;}
-                if (currentChar=='\0') {tokenNumber=-1;return;}
+                if (currentChar=='['){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenOpenBracket; return;}
+                if (currentChar==']'){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenCloseBracket; return;}
+                if (currentChar=='('){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenOpenParentheses; return;}
+                if (currentChar==')'){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenCloseParentheses; return;}
+                if (currentChar=='{'){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenOpenBrace; return;}
+                if (currentChar=='}'){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenCloseBrace; return;}
+                if (currentChar==','){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenComma; return;}
+                if (currentChar==';'){lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenSemicolon; return;}
+                if (currentChar==-1) {lex[posl]='\0'; CC71_GetNextChar(); CC71_GlobalTokenNumber=TokenEndOfFile; return;}
+                if (currentChar==' ' || currentChar=='\n' || currentChar=='\t' || currentChar=='\r') {CC71_GetNextChar();posl--;break;}
+                if (currentChar=='\0') {CC71_GlobalTokenNumber=-1;return;}
 
                 printf("ERROR: The lexical analyzer found the character %c (%d) on line %d.\n",currentChar,currentChar,line);
-                while (currentChar != '\n') getNextChar();
+                while (currentChar != '\n') CC71_GetNextChar();
                 break;
 
             /////////////////////////////////////////////////////////////////
 
             case 1:
                 if ((currentChar>='a' && currentChar<='z') || (currentChar>='A' && currentChar<='Z') || (currentChar == '_') || (currentChar>='0' && currentChar<='9')) {
-                    getNextChar();
+                    CC71_GetNextChar();
                     break;
                 }
 
                 lex[--posl] = '\0';
-                tokenNumber = palavra_reservada(lex);
+                CC71_GlobalTokenNumber = palavra_reservada(lex);
                 return;
           }
        }

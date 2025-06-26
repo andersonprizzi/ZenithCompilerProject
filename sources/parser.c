@@ -14,32 +14,73 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-int storage_class_specifier() {
-
+int CC71_ParseStorageClassSpecifier() {
+    switch (CC71_GlobalTokenNumber) {
+        case TokenAuto:
+        case TokenExtern:
+        case TokenRegister:
+        case TokenStatic:
+        case TokenTypedef:
+            CC71_GetToken();
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
-int primitive_type_specifier() {
-
+int CC71_ParsePrimitiveTypeSpecifier() {
+    switch (CC71_GlobalTokenNumber) {
+        case TokenVoid:
+        case TokenChar:
+        case TokenShort:
+        case TokenInt:
+        case TokenLong:
+        case TokenFloat:
+        case TokenDouble:
+        case TokenBool:
+        case TokenComplex:
+            CC71_GetToken();
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
-int composite_type_specifier() {
-
+int CC71_ParseCompositeTypeSpecifier() {
+    switch (CC71_GlobalTokenNumber) {
+        case TokenStruct:
+        case TokenUnion:
+        case TokenEnum:
+            CC71_GetToken();
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
-int type_qualifier() {
-
+int CC71_ParseTypeQualifier() {
+    switch (CC71_GlobalTokenNumber) {
+        case TokenConst:
+        case TokenVolatile:
+        case TokenRestrict:
+        case TokenAtomic:
+            CC71_GetToken();
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 
@@ -75,8 +116,6 @@ int translation_unit() {
 
 
 int external_declaration() {
-    printf("[external_declaration()]\n");
-
     if (function_definition()) {
         return TRUE;
     } else if (declaration()) {
@@ -125,22 +164,22 @@ int expression() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-
+/*
 int primary_expression() {
-    if (tokenNumber == TokenIdentifier ||
-        tokenNumber == TokenIntConst ||
-        tokenNumber == TokenFloatConst ||
-        tokenNumber == TokenString
+    if (CC71_GlobalTokenNumber == TokenIdentifier ||
+        CC71_GlobalTokenNumber == TokenIntConst ||
+        CC71_GlobalTokenNumber == TokenFloatConst ||
+        CC71_GlobalTokenNumber == TokenString
     ) {
-        getToken();
+        CC71_GetToken();
         CC71_LogMessage(CC71_LOG_INFO, "Recognized a primary expression.");
         return TRUE;
 
-    } else if (tokenNumber == TokenOpenParentheses) {
-        getToken();
+    } else if (CC71_GlobalTokenNumber == TokenOpenParentheses) {
+        CC71_GetToken();
         if (expression()) {
-            if (tokenNumber == TokenCloseParentheses) {
-                getToken();
+            if (CC71_GlobalTokenNumber == TokenCloseParentheses) {
+                CC71_GetToken();
                 return TRUE;
             } else {
                 AC71_ReportError(AC71_ERR_SYN_EXPECTED_CLOSE_PAREN, line, columnAux);
@@ -155,21 +194,22 @@ int primary_expression() {
     AC71_ReportError(AC71_ERR_SYN_UNEXPECTED_TOKEN, line, columnAux);
     return FALSE;
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 
 
 // ()  []  ->  .
+/*
 int postfix_expression() {
     if (primary_expression()) {
         return TRUE;
 
-    } else if (tokenNumber == TokenOpenBracket) {
-        getToken();
+    } else if (CC71_GlobalTokenNumber == TokenOpenBracket) {
+        CC71_GetToken();
         if (expression()) {
-            if (tokenNumber == TokenCloseBracket) {
-                getToken();
+            if (CC71_GlobalTokenNumber == TokenCloseBracket) {
+                CC71_GetToken();
                 return TRUE;
             } else {
                 AC71_ReportError(AC71_ERR_SYN_UNMATCHED_BRACKET, line, columnAux);
@@ -180,55 +220,47 @@ int postfix_expression() {
             return FALSE;
         }
 
-    } else if (tokenNumber == TokenOpenParentheses) {
-        getToken();
-        if (tokenNumber == TokenCloseParentheses) {
-            getToken();
+    } else if (CC71_GlobalTokenNumber == TokenOpenParentheses) {
+        CC71_GetToken();
+        if (CC71_GlobalTokenNumber == TokenCloseParentheses) {
+            CC71_GetToken();
         } else {
-            /*if (!argument_expression_list()) {
-                return FALSE;
-            }
-            if (tokenNumber != TokenCloseParentheses) {
-                AC71_ReportError(AC71_ERR_SYN_EXPECTED_CLOSE_PAREN, line, columnAux);
-                return FALSE;
-            }
-            getToken(); // Consome ')'
-            printf("Reconheceu chamada de fun��o com argumentos\n");*/
+
         }
 
     // TODO: FALTA FAZER O TOKEN DOT (.)
-    } else if (tokenNumber == TokenArrow) {
-        getToken();
-        if (tokenNumber == TokenIdentifier) {
-            getToken();
+    } else if (CC71_GlobalTokenNumber == TokenArrow) {
+        CC71_GetToken();
+        if (CC71_GlobalTokenNumber == TokenIdentifier) {
+            CC71_GetToken();
             return TRUE;
         } else {
             AC71_ReportError(AC71_ERR_SYN_UNEXPECTED_TOKEN, line, columnAux);
             return FALSE;
         }
 
-    } else if (tokenNumber == TokenIncrement) {
-        getToken();
+    } else if (CC71_GlobalTokenNumber == TokenIncrement) {
+        CC71_GetToken();
         return TRUE;
 
-    } else if (tokenNumber == TokenDecrement) {
-        getToken();
+    } else if (CC71_GlobalTokenNumber == TokenDecrement) {
+        CC71_GetToken();
         return TRUE;
     }
 
     return FALSE;
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 
-
+/*
 int unary_expression() {
     if (postfix_expression()) {
         return TRUE;
 
-    } else if (tokenNumber == TokenIncrement) {
-        getToken();
+    } else if (CC71_GlobalTokenNumber == TokenIncrement) {
+        CC71_GetToken();
         if (unary_expression()) {
             return TRUE;
         } else {
@@ -236,8 +268,8 @@ int unary_expression() {
             return FALSE;
         }
 
-    } else if (tokenNumber == TokenDecrement) {
-        getToken();
+    } else if (CC71_GlobalTokenNumber == TokenDecrement) {
+        CC71_GetToken();
         if (unary_expression()) {
             return TRUE;
         } else {
@@ -246,7 +278,7 @@ int unary_expression() {
         }
 
     } else if (unary_operator()) {
-        getToken();
+        CC71_GetToken();
         if (cast_expression()) {
             return TRUE;
         } else {
@@ -256,7 +288,7 @@ int unary_expression() {
     }
     return FALSE;
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -370,8 +402,8 @@ int assignment_expression() {
 /////////////////////////////////////////////////////////////////////////////
 
 int T() {
-    if (tokenNumber == TokenIdentifier) {
-        getToken();
+    if (CC71_GlobalTokenNumber == TokenIdentifier) {
+        CC71_GetToken();
         CC71_LogMessage(CC71_LOG_INFO, "Recognized an identifier.");
         return TRUE;
     }
@@ -381,8 +413,8 @@ int T() {
 
 int A() {
     marcaPosToken();
-    if (tokenNumber == TokenIdentifier) {
-        getToken();
+    if (CC71_GlobalTokenNumber == TokenIdentifier) {
+        CC71_GetToken();
         if (A()) return 1;
 
     }
@@ -393,8 +425,8 @@ int A() {
 
 
 int E_prime() {
-    if (tokenNumber == TokenPlus) {
-        getToken();
+    if (CC71_GlobalTokenNumber == TokenPlus) {
+        CC71_GetToken();
         if (T()) {
             if (E_prime()) {
                 return 1;
@@ -419,14 +451,14 @@ int E_prime() {
 
 
 int unary_operator() {
-    if (tokenNumber == TokenBitwiseAnd_AddressOf ||
-        tokenNumber == TokenAsterisk ||
-        tokenNumber == TokenPlus ||
-        tokenNumber == TokenMinus ||
-        tokenNumber == TokenBitwiseNot ||
-        tokenNumber == TokenLogicalNot
+    if (CC71_GlobalTokenNumber == TokenBitwiseAnd_AddressOf ||
+        CC71_GlobalTokenNumber == TokenAsterisk ||
+        CC71_GlobalTokenNumber == TokenPlus ||
+        CC71_GlobalTokenNumber == TokenMinus ||
+        CC71_GlobalTokenNumber == TokenBitwiseNot ||
+        CC71_GlobalTokenNumber == TokenLogicalNot
     ) {
-        getToken();
+        CC71_GetToken();
         CC71_LogMessage(CC71_LOG_INFO, "Recognized a unary operator.");
         return TRUE;
     }
@@ -441,7 +473,7 @@ int unary_operator() {
     if (assignment_expression()) {
         return TRUE;
     } else if (expression()) {
-        if (tokenNumber == TokenComma) {
+        if (CC71_GlobalTokenNumber == TokenComma) {
             if (assignment_expression()) {
                 return TRUE;
             }
@@ -463,11 +495,11 @@ int unary_operator() {
 
 
 int statement() {
-    if (tokenNumber == TokenIf) {
+    if (CC71_GlobalTokenNumber == TokenIf) {
         if (selection_statement()) {
             return TRUE;
         }
-    } else if (tokenNumber == TokenOpenBrace) {
+    } else if (CC71_GlobalTokenNumber == TokenOpenBrace) {
         if (compound_statement()) {
             return TRUE;
         }
@@ -485,13 +517,13 @@ int statement() {
 
 int expression_statement() {
     if(expression()) {
-        if(tokenNumber == TokenSemicolon) {
-                getToken();
+        if(CC71_GlobalTokenNumber == TokenSemicolon) {
+                CC71_GetToken();
             return TRUE;
         }
     } else {
-        if(tokenNumber == TokenSemicolon) {
-            getToken();
+        if(CC71_GlobalTokenNumber == TokenSemicolon) {
+            CC71_GetToken();
             return TRUE;
         }
     }
@@ -503,32 +535,32 @@ int expression_statement() {
 
 
 int selection_statement() {
-    if (tokenNumber == TokenIf) {
-        getToken();
+    if (CC71_GlobalTokenNumber == TokenIf) {
+        CC71_GetToken();
         CC71_LogMessage(CC71_LOG_INFO, "Recognized 'if'.");
 
-        if (tokenNumber == TokenOpenParentheses) {
-            getToken();
+        if (CC71_GlobalTokenNumber == TokenOpenParentheses) {
+            CC71_GetToken();
             CC71_LogMessage(CC71_LOG_INFO, "Recognized '('.");
 
             if (expression()) {
                 CC71_LogMessage(CC71_LOG_INFO, "Recognized an expression.");
 
-                if (tokenNumber == TokenCloseParentheses) {
-                    getToken();
+                if (CC71_GlobalTokenNumber == TokenCloseParentheses) {
+                    CC71_GetToken();
                     CC71_LogMessage(CC71_LOG_INFO, "Recognized ')'.");
 
                     if(statement()) {
                         CC71_LogMessage(CC71_LOG_INFO, "Recognized a statement.");
                         return TRUE;
                     } else {
-                        AC71_ReportError(AC71_ERR_SYN_EXPECTED_CLOSE_PAREN, line, columnAux);
+                        //AC71_ReportError(AC71_ERR_SYN_EXPECTED_CLOSE_PAREN, line, columnAux);
                         return FALSE;
                     }
                 }
             }
         } else {
-            AC71_ReportError(AC71_ERR_SYN_EXPECTED_OPEN_PAREN, line, columnAux);
+            //AC71_ReportError(AC71_ERR_SYN_EXPECTED_OPEN_PAREN, line, columnAux);
             return FALSE;
         }
     }
@@ -539,14 +571,14 @@ int selection_statement() {
 
 
 int compound_statement() {
-    if (tokenNumber == TokenOpenBrace) {
-        getToken();
+    if (CC71_GlobalTokenNumber == TokenOpenBrace) {
+        CC71_GetToken();
         CC71_LogMessage(CC71_LOG_INFO, "Recognized '{'.");
 
         statement();
 
-        if (tokenNumber == TokenCloseBrace) {
-            getToken();
+        if (CC71_GlobalTokenNumber == TokenCloseBrace) {
+            CC71_GetToken();
             CC71_LogMessage(CC71_LOG_INFO, "Recognized '}'.");
             return TRUE;
         }

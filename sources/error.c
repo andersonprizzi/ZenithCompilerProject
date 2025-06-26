@@ -2,81 +2,75 @@
 // LIBRARY INCLUDES                                                        //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "global.h"
-#include "logger.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "error.h"
-#include "utils.h"
-#include "lexer.h"
-#include "parser.h"
+
+
 
 /////////////////////////////////////////////////////////////////////////////
+// ERROR TABLE                                                             //
+/////////////////////////////////////////////////////////////////////////////
 
-static const AC71_ErrorEntry AC71_ErrorTable[] = {
-    {   AC71_ERR_INFO_SUCCESS,
-        AC71_ERROR_INFO,
-        "AC71_ERR_INFO_SUCCESS",
-        "Operation completed successfully."
-    },
-    {
-        AC71_ERR_WARNING_UNUSED_VAR,
-        AC71_ERROR_WARNING,
-        "AC71_ERR_WARNING_UNUSED_VAR",
-        "Variable declared but never used."
-    },
-    { AC71_ERR_LEX_INVALID_CHAR,   AC71_ERROR_LEXICAL, "AC71_ERR_LEX_INVALID_CHAR",    "Invalid character encountered." },
-    { AC71_ERR_LEX_UNCLOSED_STRING,AC71_ERROR_LEXICAL, "AC71_ERR_LEX_UNCLOSED_STRING", "Unclosed string literal." },
-    { AC71_ERR_LEX_INVALID_NUMBER, AC71_ERROR_LEXICAL, "AC71_ERR_LEX_INVALID_NUMBER",  "Invalid numeric literal." },
-    { AC71_ERR_SYN_UNEXPECTED_TOKEN, AC71_ERROR_SYNTAX, "AC71_ERR_SYN_UNEXPECTED_TOKEN","Unexpected token found." },
-    { AC71_ERR_SYN_MISSING_SEMICOLON, AC71_ERROR_SYNTAX, "AC71_ERR_SYN_MISSING_SEMICOLON", "Missing semicolon." },
-    { AC71_ERR_SYN_UNMATCHED_BRACKET, AC71_ERROR_SYNTAX, "AC71_ERR_SYN_UNMATCHED_BRACKET", "Unmatched bracket." },
-    { AC71_ERR_SYN_EXPECTED_OPEN_PAREN, AC71_ERROR_SYNTAX, "AC71_ERR_SYN_EXPECTED_OPEN_PAREN", "Expected '('." },
-    { AC71_ERR_SYN_EXPECTED_CLOSE_PAREN, AC71_ERROR_SYNTAX, "AC71_ERR_SYN_EXPECTED_CLOSE_PAREN", "Expected ')'." },
-    { AC71_ERR_SEM_UNDECLARED_IDENTIFIER, AC71_ERROR_SEMANTIC, "AC71_ERR_SEM_UNDECLARED_IDENTIFIER", "Undeclared identifier used." },
-    { AC71_ERR_SEM_REDECLARATION, AC71_ERROR_SEMANTIC, "AC71_ERR_SEM_REDECLARATION", "Variable redeclared." },
-    { AC71_ERR_SEM_TYPE_MISMATCH, AC71_ERROR_SEMANTIC, "AC71_ERR_SEM_TYPE_MISMATCH", "Type mismatch." },
-    { AC71_ERR_SEM_INVALID_RETURN, AC71_ERROR_SEMANTIC, "AC71_ERR_SEM_INVALID_RETURN", "Invalid return statement." },
-    { AC71_ERR_FATAL_OUT_OF_MEMORY, AC71_ERROR_FATAL, "AC71_ERR_FATAL_OUT_OF_MEMORY", "Out of memory." },
-    { AC71_ERR_FATAL_INTERNAL, AC71_ERROR_FATAL, "AC71_ERR_FATAL_INTERNAL", "Internal compiler error." }
+static const CC71_ErrorEntry CC71_ErrorTable[CC71_ERR_COUNT] = {
+    { CC71_ERR_LEX_INVALID_CHAR, CC71_ERROR_LEXICAL, "CC71_ERR_LEX_INVALID_CHAR", "Invalid character encountered." },
+    { CC71_ERR_LEX_UNCLOSED_STRING, CC71_ERROR_LEXICAL, "CC71_ERR_LEX_UNCLOSED_STRING", "Unclosed string literal." },
+    { CC71_ERR_LEX_INVALID_NUMBER, CC71_ERROR_LEXICAL, "CC71_ERR_LEX_INVALID_NUMBER", "Invalid numeric literal." },
+
+    { CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_ERROR_SYNTAX, "CC71_ERR_SYN_UNEXPECTED_TOKEN", "Unexpected token found." },
+    { CC71_ERR_SYN_MISSING_SEMICOLON, CC71_ERROR_SYNTAX, "CC71_ERR_SYN_MISSING_SEMICOLON", "Missing semicolon." },
+    { CC71_ERR_SYN_UNMATCHED_BRACKET, CC71_ERROR_SYNTAX, "CC71_ERR_SYN_UNMATCHED_BRACKET", "Unmatched bracket." },
+    { CC71_ERR_SYN_EXPECTED_OPEN_PAREN, CC71_ERROR_SYNTAX, "CC71_ERR_SYN_EXPECTED_OPEN_PAREN", "Expected '('." },
+    { CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_ERROR_SYNTAX, "CC71_ERR_SYN_EXPECTED_CLOSE_PAREN", "Expected ')'." },
+
+    { CC71_ERR_SEM_UNDECLARED_IDENTIFIER, CC71_ERROR_SEMANTIC, "CC71_ERR_SEM_UNDECLARED_IDENTIFIER", "Undeclared identifier." },
+    { CC71_ERR_SEM_REDECLARATION, CC71_ERROR_SEMANTIC, "CC71_ERR_SEM_REDECLARATION", "Redeclaration of identifier." },
+    { CC71_ERR_SEM_TYPE_MISMATCH, CC71_ERROR_SEMANTIC, "CC71_ERR_SEM_TYPE_MISMATCH", "Type mismatch." },
+    { CC71_ERR_SEM_INVALID_RETURN, CC71_ERROR_SEMANTIC, "CC71_ERR_SEM_INVALID_RETURN", "Invalid return statement." },
+
+    { CC71_ERR_FATAL_OUT_OF_MEMORY, CC71_ERROR_FATAL, "CC71_ERR_FATAL_OUT_OF_MEMORY", "Out of memory." },
+    { CC71_ERR_FATAL_INTERNAL, CC71_ERROR_FATAL, "CC71_ERR_FATAL_INTERNAL", "Internal compiler error." }
 };
 
+
+
+/////////////////////////////////////////////////////////////////////////////
+// FUNCTION IMPLEMENTATIONS                                                //
 /////////////////////////////////////////////////////////////////////////////
 
-const AC71_ErrorEntry* AC71_GetErrorEntry(AC71_ErrorCode code) {
-    if (code >= 0 && code < AC71_ERR_COUNT) {
-        return &AC71_ErrorTable[code];
+const CC71_ErrorEntry* CC71_GetErrorEntry(CC71_ErrorCode code) {
+    if (code >= 0 && code < CC71_ERR_COUNT) {
+        return &CC71_ErrorTable[code];
     }
     return NULL;
 }
 
-/////////////////////////////////////////////////////////////////////////////
 
-const char* AC71_ErrorTypeToString(AC71_ErrorType type) {
+const char* CC71_GetErrorString(CC71_ErrorType type) {
     switch (type) {
-        case AC71_ERROR_INFO: return "Info";
-        case AC71_ERROR_WARNING: return "Warning";
-        case AC71_ERROR_LEXICAL: return "Lexical error";
-        case AC71_ERROR_SYNTAX: return "Syntax error";
-        case AC71_ERROR_SEMANTIC: return "Semantic error";
-        case AC71_ERROR_FATAL: return "Fatal error";
-        default: return "Unknown error type";
+        case CC71_ERROR_LEXICAL: return "Lexical Error";
+        case CC71_ERROR_SYNTAX: return "Syntax Error";
+        case CC71_ERROR_SEMANTIC: return "Semantic Error";
+        case CC71_ERROR_FATAL: return "Fatal Error";
+        default: return "Unknown Error Type";
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
 
-void AC71_ReportError(AC71_ErrorCode code, int errorLine, int errorColumn) {
-    const AC71_ErrorEntry* entry = AC71_GetErrorEntry(code);
-
+void CC71_ReportError(CC71_ErrorCode code, int line, int column) {
+    const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
     if (!entry) {
-        fprintf(stderr, "[error][LINE %d, COLUMN %d] Unknown error code: %d\n", errorLine, errorColumn, code);
+        fprintf(stderr, "[ERROR][%d:%d] Unknown error code %d.\n", line, column, code);
         return;
     }
 
-    const char* errorType = AC71_ErrorTypeToString(entry->type);
+    fprintf(stderr, "[%s][%d:%d] %s\n",
+            CC71_GetErrorString(entry->type),
+            line,
+            column,
+            entry->message);
 
-    fprintf(stderr, "Error at line %d, column %d. %s: %s\n", errorLine, errorColumn, errorType, entry->message);
-
-    if (entry->type == AC71_ERROR_FATAL) {
+    if (entry->type == CC71_ERROR_FATAL) {
         exit(EXIT_FAILURE);
     }
 }

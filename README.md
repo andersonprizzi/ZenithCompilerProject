@@ -1,11 +1,9 @@
 # CC71
+This project, named C Compiler 71, is a C language compiler currently under development. It incorporates lexer, parser, and code generation stages, and is based on a grammar authored by the creator, inspired by Jeff Lee's ANSI C grammar.
 
-This project, named C Compiler 71, is a C language compiler currently under active development. It incorporates a lexer, parser, and code generation stages, and is based on Jeff Lee’s ANSI C grammar
-
-
+The formal grammar defining the basis of this project can be found in the GRAMMAR.md file.
 
 ## Structure
-
 Overview of the project’s directory layout, detailing how source code, headers, data, and scripts are structured.
 
 - `headers/`: Header files (`.h`) for the compiler modules.
@@ -26,7 +24,6 @@ On Windows, to build the project, run:
 
 
 ## Run
-
 On Windows, to execute the compiler, run:
 ```bat
 ./scripts/run_on_windows.bat
@@ -35,7 +32,6 @@ On Windows, to execute the compiler, run:
 
 
 ## Usage
-
 The compiler expects two command-line arguments:
 
 ```bat

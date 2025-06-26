@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
     if (!AC71_ValidateFilePointers()) return 1;
 
     columnAux = column;
-    getNextChar(); // Reads the first character of the file.
-    getToken();    // Reads the first token.
+    CC71_GetNextChar(); // Reads the first character of the file.
+    CC71_GetToken();    // Reads the first token.
 
     // Lexical-syntactic recognition.
     //if (translation_unit()) {
@@ -85,9 +85,9 @@ int main(int argc, char *argv[]) {
         printf("Nao reconheceu o codigo-fonte.\n");
     }
 
-    /*while (tokenNumber != TokenEndOfFile) {
-        if (OUTPUT_MODE) insertIntoFile(lex, tokens[tokenNumber], line, columnAux);
-        getToken();
+    /*while (CC71_GlobalTokenNumber != TokenEndOfFile) {
+        if (OUTPUT_MODE) insertIntoFile(lex, tokens[CC71_GlobalTokenNumber], line, columnAux);
+        CC71_GetToken();
 	}*/
 
 	if (currentChar == -1) printf("The lexical-syntactic analyzer completed the operations successfully.\n");

@@ -7,14 +7,14 @@ This formal grammar was developed by Anderson Pastore Rizzi and is based on the 
 
 ```bnf
 storage_class_specifier 
-    → TokenAuto
+    : TokenAuto
     | TokenExtern
     | TokenRegister
     | TokenStatic
     | TokenTypedef
 
 primitive_type_specifier 
-    → TokenVoid
+    : TokenVoid
     | TokenChar
     | TokenShort
     | TokenInt
@@ -25,12 +25,12 @@ primitive_type_specifier
     | TokenComplex
 
 composite_type_specifier 
-    → TokenStruct
+    : TokenStruct
     | TokenUnion
     | TokenEnum
 
 type_qualifier 
-    → TokenConst
+    : TokenConst
     | TokenVolatile
     | TokenRestrict
     | TokenAtomic
