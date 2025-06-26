@@ -21,7 +21,15 @@ On Windows, to build the project, run:
 ./scripts/build_on_windows.bat
 ```
 
+If the build is successful, you will see the message:
+```bat
+Build successful.
+```
 
+Otherwise, if the build fails, you will see:
+```bat
+Build failed.
+```
 
 ## Run
 On Windows, to execute the compiler, run:

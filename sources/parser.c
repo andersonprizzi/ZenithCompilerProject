@@ -294,9 +294,9 @@ int unary_expression() {
 
 
 int cast_expression() {
-    if (unary_expression()) {
+    /*if (unary_expression()) {
         return TRUE;
-    }
+    }*/
     // TODO: FAZER O CAST COM PARENTESES AQUI.
     return FALSE;
 }

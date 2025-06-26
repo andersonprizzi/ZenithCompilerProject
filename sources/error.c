@@ -46,7 +46,10 @@ const CC71_ErrorEntry* CC71_GetErrorEntry(CC71_ErrorCode code) {
 }
 
 
-const char* CC71_GetErrorString(CC71_ErrorType type) {
+/////////////////////////////////////////////////////////////////////////////
+
+
+const char* CC71_GetErrorType(CC71_ErrorType type) {
     switch (type) {
         case CC71_ERROR_LEXICAL: return "Lexical Error";
         case CC71_ERROR_SYNTAX: return "Syntax Error";
@@ -57,18 +60,23 @@ const char* CC71_GetErrorString(CC71_ErrorType type) {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+
+
 void CC71_ReportError(CC71_ErrorCode code, int line, int column) {
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
+
     if (!entry) {
         fprintf(stderr, "[ERROR][%d:%d] Unknown error code %d.\n", line, column, code);
         return;
     }
 
-    fprintf(stderr, "[%s][%d:%d] %s\n",
-            CC71_GetErrorString(entry->type),
+    fprintf (stderr, "[%s][%d:%d] %s\n",
+            CC71_GetErrorType(entry->type),
             line,
             column,
-            entry->message);
+            entry->message
+    );
 
     if (entry->type == CC71_ERROR_FATAL) {
         exit(EXIT_FAILURE);
