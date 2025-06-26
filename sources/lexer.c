@@ -3,7 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "global.h"
+#include "logger.h"
+#include "error.h"
+#include "utils.h"
 #include "lexer.h"
+#include "parser.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // LEXER                                                                   //
@@ -71,11 +75,11 @@ void getToken() {
        switch(estado){
             case 0:
                 columnAux = column;
-                // Reconhece e descarta comentários e reconhece divisão.
+                // Reconhece e descarta comentï¿½rios e reconhece divisï¿½o.
                 if (currentChar == '/') {
                     getNextChar();
 
-                    // Reconhece e descarta comentários de uma linha.
+                    // Reconhece e descarta comentï¿½rios de uma linha.
                     if (currentChar == '/') {
                         posl--;
                         while (currentChar != '\n') getNextChar();
@@ -84,7 +88,7 @@ void getToken() {
                         break;
                     }
 
-                    // Reconhece e descarta comentários de múltiplas linhas.
+                    // Reconhece e descarta comentï¿½rios de mï¿½ltiplas linhas.
                     else if (currentChar == '*') {
                         posl--;
                         int prev = 0;
@@ -92,7 +96,7 @@ void getToken() {
                         getNextChar();
 
                         while (1) {
-                            if (currentChar == -1) break; // EOF sem fechar comentário.
+                            if (currentChar == -1) break; // EOF sem fechar comentï¿½rio.
                             if (prev == '*' && currentChar == '/') {
                                 printf("The lexical analyzer found a multi-line comment starting at line %d and ending at line %d.\n", startingLine, line);
                                 getNextChar();
@@ -104,7 +108,7 @@ void getToken() {
                         break;
                     }
 
-                    // Reconhece o operador de divisão.
+                    // Reconhece o operador de divisï¿½o.
                     else {
                         lex[posl] = '\0';
                         tokenNumber = TokenDivision;
@@ -120,7 +124,7 @@ void getToken() {
                     break;
                 }
 
-                // Reconhece números inteiros e em ponto flutuante.
+                // Reconhece nï¿½meros inteiros e em ponto flutuante.
                 if ((currentChar >= '0') && (currentChar <= '9')) {
                     int floatConstFlag = FALSE;
                     while ((currentChar >= '0') && (currentChar <= '9') || (currentChar == '.')) {
@@ -155,7 +159,7 @@ void getToken() {
                     return;
                 }
 
-                // Reconhece o operador de igualdade e atribuição.
+                // Reconhece o operador de igualdade e atribuiï¿½ï¿½o.
                 if (currentChar == '=') {
                     getNextChar();
 
@@ -168,7 +172,7 @@ void getToken() {
                        return;
                     }
 
-                    // Reconhece o operador de atribuição.
+                    // Reconhece o operador de atribuiï¿½ï¿½o.
                     else {
                        lex[posl] = '\0';
                        tokenNumber = TokenAssign;
@@ -176,7 +180,7 @@ void getToken() {
                     }
                 }
 
-                // Reconhece os operadores de incremento, atribuição por adição e adição.
+                // Reconhece os operadores de incremento, atribuiï¿½ï¿½o por adiï¿½ï¿½o e adiï¿½ï¿½o.
                  if (currentChar == '+') {
                     getNextChar();
 
@@ -189,7 +193,7 @@ void getToken() {
                        return;
                     }
 
-                    // Reconhece o operador de atriuição por adição.
+                    // Reconhece o operador de atriuiï¿½ï¿½o por adiï¿½ï¿½o.
                     else if (currentChar == '=') {
                        lex[posl++] = '=';
                        lex[posl] = '\0';
@@ -198,7 +202,7 @@ void getToken() {
                        return;
                     }
 
-                    // Reconhece o operador de adicão.
+                    // Reconhece o operador de adicï¿½o.
                     else {
                        lex[posl] = '\0';
                        tokenNumber = TokenPlus;
@@ -206,7 +210,7 @@ void getToken() {
                     }
                 }
 
-                // Reconhece os operadores de decremento e subtração.
+                // Reconhece os operadores de decremento e subtraï¿½ï¿½o.
                 if (currentChar == '-') {
                     getNextChar();
 
@@ -228,7 +232,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de subtração.
+                    // Reconhece o operador de subtraï¿½ï¿½o.
                     else {
                        lex[posl] = '\0';
                        tokenNumber = TokenMinus;
@@ -236,7 +240,7 @@ void getToken() {
                     }
                 }
 
-                // Reconhece o operador de multiplicação.
+                // Reconhece o operador de multiplicaï¿½ï¿½o.
                 if (currentChar == '*') {
                     lex[posl]='\0';
                     getNextChar();
@@ -244,7 +248,7 @@ void getToken() {
                     return;
                 }
 
-                // Reconhece o operador de módulo e %>.
+                // Reconhece o operador de mï¿½dulo e %>.
                 if (currentChar == '%') {
                     getNextChar();
 
@@ -257,7 +261,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de módulo.
+                    // Reconhece o operador de mï¿½dulo.
                     else {
                         lex[posl]='\0';
                         tokenNumber = TokenMod;
@@ -273,7 +277,7 @@ void getToken() {
                     return;
                 }
 
-                // Reconhece o operador de interrogação do conjunto ternário.
+                // Reconhece o operador de interrogaï¿½ï¿½o do conjunto ternï¿½rio.
                 if (currentChar == '?') {
                     lex[posl]='\0';
                     getNextChar();
@@ -281,11 +285,11 @@ void getToken() {
                     return;
                 }
 
-                // Reconhece o operador lógico 'and', operador bitwise 'and' e o operador 'address of'.
+                // Reconhece o operador lï¿½gico 'and', operador bitwise 'and' e o operador 'address of'.
                 if (currentChar == '&') {
                     getNextChar();
 
-                    // Reconhece o operador lógico 'and'.
+                    // Reconhece o operador lï¿½gico 'and'.
                     if (currentChar == '&') {
                        lex[posl++] = '&';
                        lex[posl] = '\0';
@@ -302,11 +306,11 @@ void getToken() {
                     }
                 }
 
-                // Reconhece o operador lógico 'or' e o operador bitwise 'or'.
+                // Reconhece o operador lï¿½gico 'or' e o operador bitwise 'or'.
                 if (currentChar == '|') {
                     getNextChar();
 
-                    // Reconhece o operador lógico 'or'.
+                    // Reconhece o operador lï¿½gico 'or'.
                     if (currentChar == '|') {
                        lex[posl++] = '|';
                        lex[posl] = '\0';
@@ -339,11 +343,11 @@ void getToken() {
                     return;
                 }
 
-                // Reconhece o operador de deslocamento à direita, maior ou igual e maior que.
+                // Reconhece o operador de deslocamento ï¿½ direita, maior ou igual e maior que.
                 if (currentChar == '>') {
                     getNextChar();
 
-                    // Reconhece o operador bitwise de deslocamento à direita.
+                    // Reconhece o operador bitwise de deslocamento ï¿½ direita.
                     if (currentChar == '>') {
                         lex[posl++] = '>';
                         lex[posl] = '\0';
@@ -352,7 +356,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de comparação maior ou igual.
+                    // Reconhece o operador de comparaï¿½ï¿½o maior ou igual.
                     else if (currentChar == '=') {
                         lex[posl++] = '=';
                         lex[posl] = '\0';
@@ -361,7 +365,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de comparação maior.
+                    // Reconhece o operador de comparaï¿½ï¿½o maior.
                     else {
                        lex[posl] = '\0';
                        tokenNumber = TokenGreaterThan;
@@ -369,11 +373,11 @@ void getToken() {
                     }
                 }
 
-                // Reconhece o operador de deslocamento à esquerda, menor ou igual, menor que e <%.
+                // Reconhece o operador de deslocamento ï¿½ esquerda, menor ou igual, menor que e <%.
                 if (currentChar == '<') {
                     getNextChar();
 
-                    // Reconhece o operador bitwise de deslocamento à esquerda.
+                    // Reconhece o operador bitwise de deslocamento ï¿½ esquerda.
                     if (currentChar == '<') {
                         lex[posl++] = '<';
                         lex[posl] = '\0';
@@ -382,7 +386,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de comparação menor ou igual.
+                    // Reconhece o operador de comparaï¿½ï¿½o menor ou igual.
                     else if (currentChar == '=') {
                         lex[posl++] = '=';
                         lex[posl] = '\0';
@@ -409,7 +413,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de comparação menor.
+                    // Reconhece o operador de comparaï¿½ï¿½o menor.
                     else {
                        lex[posl] = '\0';
                        tokenNumber = TokenLessThan;
@@ -417,11 +421,11 @@ void getToken() {
                     }
                 }
 
-                // Reconhece o operador de diferença e negação lógica.
+                // Reconhece o operador de diferenï¿½a e negaï¿½ï¿½o lï¿½gica.
                 if (currentChar == '!') {
                     getNextChar();
 
-                    // Reconhece o operador de diferença.
+                    // Reconhece o operador de diferenï¿½a.
                     if (currentChar == '=') {
                         lex[posl++] = '=';
                         lex[posl] = '\0';
@@ -430,7 +434,7 @@ void getToken() {
                         return;
                     }
 
-                    // Reconhece o operador de negação lógica.
+                    // Reconhece o operador de negaï¿½ï¿½o lï¿½gica.
                     else {
                        lex[posl] = '\0';
                        tokenNumber = TokenLogicalNot;

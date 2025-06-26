@@ -4,7 +4,7 @@
 
 /**
  * Developed by Anderson Pastore Rizzi.
- * Based on Jeff Lee’s ANSI C grammar.
+ * The grammar is described in the file GRAMMAR.md.
  */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 #include "global.h"
 #include "logger.h"
 #include "error.h"
+#include "utils.h"
 #include "lexer.h"
 #include "parser.h"
 
