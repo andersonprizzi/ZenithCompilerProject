@@ -176,18 +176,18 @@ extern char lex[20];
 
 extern int CC71_GlobalPosition;
 extern int CC71_GlobalTokenNumber;
-extern int line;
-extern int column;
+extern int CC71_GlobalCurrentLine;
+extern int CC71_GlobalCurrentColumn;
 extern int columnAux;
 extern char currentChar;
 
 extern tcontexto pilhacon[1000];
 extern int topcontexto;
 
-extern FILE *inputFile;
-extern FILE *outputFile;
+extern FILE *CC71_GlobalInputFile;
+extern FILE *CC71_GlobalOutputFile;
 
-extern const int AC71_DebugMode;
+extern const int CC71_DebugMode;
 extern const char* tokens[];
 extern Keyword keywordList[];
 

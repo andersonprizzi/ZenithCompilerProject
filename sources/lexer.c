@@ -26,7 +26,7 @@ int palavra_reservada(char lex[]) {
 /////////////////////////////////////////////////////////////////////////////
 
 void marcaPosToken() {
-	pilhacon[topcontexto].posglobal=ftell(inputFile);
+	pilhacon[topcontexto].posglobal=ftell(CC71_GlobalInputFile);
 	pilhacon[topcontexto].tkant = CC71_GlobalTokenNumber;
 	pilhacon[topcontexto].cant=currentChar;
     strcpy(pilhacon[topcontexto].lexant,lex);
@@ -37,7 +37,7 @@ void marcaPosToken() {
 
 void restauraPosToken() {
     topcontexto--;
-	fseek(inputFile,pilhacon[topcontexto].posglobal,SEEK_SET);
+	fseek(CC71_GlobalInputFile,pilhacon[topcontexto].posglobal,SEEK_SET);
     currentChar=pilhacon[topcontexto].cant;
 	CC71_GlobalTokenNumber = pilhacon[topcontexto].tkant;
     strcpy(lex,pilhacon[topcontexto].lexant);
@@ -46,19 +46,19 @@ void restauraPosToken() {
 /////////////////////////////////////////////////////////////////////////////
 
 void CC71_GetNextChar() {
-    fread(&currentChar, 1, 1, inputFile);
+    fread(&currentChar, 1, 1, CC71_GlobalInputFile);
 
-    if (feof(inputFile)) {
+    if (feof(CC71_GlobalInputFile)) {
        currentChar =- 1;
        return;
     }
 
     if (currentChar == '\n') {
-        line++;
-        column = 0;
+        CC71_GlobalCurrentLine++;
+        CC71_GlobalCurrentColumn = 0;
         columnAux = 0;
     } else {
-        column++;
+        CC71_GlobalCurrentColumn++;
     }
 }
 
@@ -73,7 +73,7 @@ void CC71_GetToken() {
 
        switch(estado){
             case 0:
-                columnAux = column;
+                columnAux = CC71_GlobalCurrentColumn;
                 // Recognizes and skips comments or identifies the division operator.
                 if (currentChar == '/') {
                     CC71_GetNextChar();
@@ -82,7 +82,6 @@ void CC71_GetToken() {
                     if (currentChar == '/') {
                         posl--;
                         while (currentChar != '\n') CC71_GetNextChar();
-                        printf("The lexical analyzer found a line comment at line %d.\n", line);
                         CC71_GetNextChar();
                         break;
                     }
@@ -91,7 +90,7 @@ void CC71_GetToken() {
                     else if (currentChar == '*') {
                         posl--;
                         int prev = 0;
-                        int startingLine = line;
+                        int startingLine = CC71_GlobalCurrentLine;
                         CC71_GetNextChar();
 
                         while (1) {
@@ -147,7 +146,7 @@ void CC71_GetToken() {
                         }
 
                         if (!hasDigitsAfterDot) {
-                            CC71_ReportError(CC71_ERR_LEX_INVALID_NUMBER, line, column);
+                            CC71_ReportError(CC71_ERR_LEX_INVALID_NUMBER, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn);
                             CC71_GlobalTokenNumber = -1;
                             return;
                         }

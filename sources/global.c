@@ -15,21 +15,25 @@
 
 int CC71_GlobalPosition = 0;
 int CC71_GlobalTokenNumber;
-int line = 1;
-int column = 0;
+int CC71_GlobalCurrentLine = 1;
+int CC71_GlobalCurrentColumn = 0;
 int columnAux;
 char lex[20];
 char currentChar;
 
+/////////////////////////////////////////////////////////////////////////////
+
 int topcontexto = 0;
 tcontexto pilhacon[1000];
 
-FILE *inputFile;
-FILE *outputFile;
+/////////////////////////////////////////////////////////////////////////////
+
+FILE *CC71_GlobalInputFile;
+FILE *CC71_GlobalOutputFile;
 
 /////////////////////////////////////////////////////////////////////////////
 
-const int AC71_DebugMode = TRUE;
+const int CC71_DebugMode = TRUE;
 
 /////////////////////////////////////////////////////////////////////////////
 

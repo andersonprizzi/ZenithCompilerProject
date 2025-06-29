@@ -30,13 +30,13 @@ void insertIntoFile(const char *lexeme, const char *tokenName, int lineNumber, i
 
 
 void AC71_OpenSourceFile(const char *inputFileName, const char *outputFileName) {
-    inputFile = fopen(inputFileName,"rb");
-    outputFile = fopen(outputFileName, "w");
+    CC71_GlobalInputFile = fopen(inputFileName,"rb");
+    CC71_GlobalOutputFile = fopen(outputFileName, "w");
 }
 
 
-int AC71_ValidateFilePointers() {
-    if (inputFile == NULL || outputFile == NULL) {
+int CC71_ValidateFilePointers() {
+    if (CC71_GlobalInputFile == NULL || CC71_GlobalOutputFile == NULL) {
         printf("ERROR: Could not open file.\n");
         return FALSE;
     }
@@ -57,43 +57,43 @@ int main(int argc, char *argv[]) {
     const char *input_path = argv[1];
     const char *output_path = argv[2];
 
-    inputFile = fopen(input_path, "r");
-    if (!inputFile) {
+    CC71_GlobalInputFile = fopen(input_path, "r");
+    if (!CC71_GlobalInputFile) {
         perror("Error opening input file.");
         return 1;
     }
 
-    outputFile = fopen(output_path, "w");
-    if (!outputFile) {
+    CC71_GlobalOutputFile = fopen(output_path, "w");
+    if (!CC71_GlobalOutputFile) {
         perror("Error opening output file.");
-        fclose(inputFile);
+        fclose(CC71_GlobalInputFile);
         return 1;
     }
 
     //AC71_OpenSourceFile("font.c","output.txt");
-    if (!AC71_ValidateFilePointers()) return 1;
+    if (!CC71_ValidateFilePointers()) return 1;
 
-    columnAux = column;
+    columnAux = CC71_GlobalCurrentColumn;
     CC71_GetNextChar(); // Reads the first character of the file.
     CC71_GetToken();    // Reads the first token.
 
     // Lexical-syntactic recognition.
-    //if (translation_unit()) {
-    if (statement()) {
+    if (CC71_ParseTranslationUnit()) {
         printf("Reconheceu o codigo-fonte.\n");
     } else {
         printf("Nao reconheceu o codigo-fonte.\n");
     }
 
+    // Lexical recognition.
     /*while (CC71_GlobalTokenNumber != TokenEndOfFile) {
         if (OUTPUT_MODE) insertIntoFile(lex, tokens[CC71_GlobalTokenNumber], line, columnAux);
         CC71_GetToken();
 	}*/
 
-	if (currentChar == -1) printf("The lexical-syntactic analyzer completed the operations successfully.\n");
+	if (currentChar == -1) CC71_LogMessage(CC71_LOG_INFO, "The lexical-syntactic analyzer completed the operations successfully.");
 
-	fclose(inputFile);
-	fclose(outputFile);
+	fclose(CC71_GlobalInputFile);
+	fclose(CC71_GlobalOutputFile);
 
 	return 0;
 }

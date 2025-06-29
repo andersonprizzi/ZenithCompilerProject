@@ -9,6 +9,21 @@
 #include "lexer.h"
 #include "parser.h"
 
+
+
+/////////////////////////////////////////////////////////////////////////////
+// PARSER: FUNDAMENTAL UNIT OF ANALYSIS                                    //
+/////////////////////////////////////////////////////////////////////////////
+
+int CC71_ParseTranslationUnit() {
+    while (1) {
+        if (!external_declaration()) break;
+    }
+    return 1;
+}
+
+
+
 /////////////////////////////////////////////////////////////////////////////
 // PARSER: DECLARATION AND TYPE ANALYSIS                                   //
 /////////////////////////////////////////////////////////////////////////////
@@ -84,6 +99,133 @@ int CC71_ParseTypeQualifier() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+// PARSER                                                                  //
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+// Tenta consumir pelo menos um storage_class_specifier, type_specifier ou type_qualifier
+int declaration_specifiers() {
+    int consumed = 0;
+    int progress;
+
+    do {
+        progress = 0;
+        if (CC71_ParseStorageClassSpecifier()) {
+            consumed = 1;
+            progress = 1;
+            continue;
+        }
+        if (CC71_ParsePrimitiveTypeSpecifier()) {
+            consumed = 1;
+            progress = 1;
+            continue;
+        }
+        if (CC71_ParseCompositeTypeSpecifier()) {
+            consumed = 1;
+            progress = 1;
+            continue;
+        }
+        if (CC71_ParseTypeQualifier()) {
+            consumed = 1;
+            progress = 1;
+            continue;
+        }
+    } while (progress);
+
+    return consumed;
+}
+
+// Declarator simples: só identificador
+int declarator() {
+    if (CC71_GlobalTokenNumber == TokenIdentifier) {
+        CC71_GetToken();
+        return 1;
+    }
+    return 0;
+}
+
+// Compound statement: '{' ... '}'
+int compound_statement() {
+    if (CC71_GlobalTokenNumber != TokenLeftBrace) {
+        return 0;
+    }
+    CC71_GetToken(); // consome '{'
+
+    // Para simplificar, só consumimos tokens até encontrar '}'
+    // Pode ser expandido depois para reconhecer statements
+    while (CC71_GlobalTokenNumber != TokenRightBrace && CC71_GlobalTokenNumber != TokenEOF) {
+        CC71_GetToken();
+    }
+
+    if (CC71_GlobalTokenNumber != TokenRightBrace) {
+        CC71_ParserError("Expected '}' at end of compound statement");
+        return 0;
+    }
+    CC71_GetToken(); // consome '}'
+
+    return 1;
+}
+
+// external_declaration: declaração ou função
+int external_declaration() {
+    // 1. declaraton_specifiers obrigatórios
+    if (!declaration_specifiers()) {
+        return 0;
+    }
+
+    // 2. declarator obrigatorio (nome da variável ou função)
+    if (!declarator()) {
+        CC71_ParserError("Expected declarator");
+        return 0;
+    }
+
+    // 3. pode ser uma função (parênteses) ou declaração (ponto e vírgula)
+
+    if (CC71_GlobalTokenNumber == TokenLeftParen) {
+        // Função: reconhecimento simplificado de parâmetros ignorados
+        CC71_GetToken(); // consome '('
+
+        // Para simplificar, ignoramos lista de parâmetros e só consumimos até fechar parênteses
+        int paren_count = 1;
+        while (paren_count > 0 && CC71_GlobalTokenNumber != TokenEOF) {
+            if (CC71_GlobalTokenNumber == TokenLeftParen) paren_count++;
+            else if (CC71_GlobalTokenNumber == TokenRightParen) paren_count--;
+            CC71_GetToken();
+        }
+
+        if (paren_count != 0) {
+            CC71_ParserError("Unmatched parentheses in function parameter list");
+            return 0;
+        }
+
+        // Agora espera o corpo da função (compound statement)
+        if (!compound_statement()) {
+            CC71_ParserError("Expected function body");
+            return 0;
+        }
+
+        return 1;
+    }
+    else if (CC71_GlobalTokenNumber == TokenSemicolon) {
+        // Declaração simples
+        CC71_GetToken();
+        return 1;
+    }
+    else {
+        CC71_ParserError("Expected '(' for function or ';' for declaration");
+        return 0;
+    }
+}
+
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // PARSER                                                                  //
@@ -98,12 +240,12 @@ int CC71_ParseTypeQualifier() {
 /////////////////////////////////////////////////////////////////////////////
 
 
-int translation_unit() {
+int CC71_ParseTranslationUnit() {
     printf("[translation_unit()]\n");
 
     if (external_declaration()) {
         return TRUE;
-    } else if (translation_unit()) {
+    } else if (CC71_ParseTranslationUnit()) {
         if (external_declaration()) {
             return TRUE;
         }
