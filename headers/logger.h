@@ -12,7 +12,14 @@ typedef enum {
     CC71_LOG_ERROR,   // Critical issues that prevent continued execution.
 } CC71_LogLevel;
 
-void CC71_LogMessage(CC71_LogLevel logLevel, const char* format, ...);
+typedef enum {
+    CC71_LOG_EVENT_GENERIC,
+    CC71_LOG_EVENT_ENTER_FUNCTION,
+    CC71_LOG_EVENT_ACCEPTED_TOKEN,
+    CC71_LOG_EVENT_BACKTRACK_START,
+    CC71_LOG_EVENT_EXIT_SUCCESS,
+    CC71_LOG_EVENT_EXIT_FAILURE
+} CC71_LogEvent;
 
 
 
@@ -20,6 +27,6 @@ void CC71_LogMessage(CC71_LogLevel logLevel, const char* format, ...);
 // FUNCTION PROTOTYPES                                                     //
 /////////////////////////////////////////////////////////////////////////////
 
-void CC71_LogMessage(CC71_LogLevel logLevel, const char* msg);
+void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char* format, ...);
 
 #endif // LOGGER_H_INCLUDED

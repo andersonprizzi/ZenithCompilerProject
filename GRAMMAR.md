@@ -284,6 +284,29 @@ struct_declaration
     ;
 
 
+struct_declarator_list
+    : struct_declarator struct_declarator_list_sequence
+    ;
+
+
+struct_declarator_list_sequence
+    : TokenComma struct_declarator struct_declarator_list_sequence
+    | ε
+    ;
+
+
+struct_declarator
+    : declarator struct_declarator_suffix
+    | TokenColon constant_expression
+    ;
+
+
+struct_declarator_suffix
+    : TokenColon constant_expression
+    | ε
+    ;
+
+
 enumerator_specifier
     : TokenEnum enumerator_body
     ;
@@ -407,6 +430,17 @@ jump_statement
 
 ## Grammar rules for expressions
 ```bnf
+expression
+    : assignment_expression expression_sequence
+    ;
+
+
+expression_sequence
+    : TokenComma assignment_expression expression_sequence
+    | ε
+    ;
+
+
 constant_expression
     : conditional_expression
     ;
@@ -736,12 +770,3 @@ assignment_operator
 | cast_expression             | 3                    | right-to-left       |
 | unary_expression            | 2                    | right-to-left       |
 | postfix_expression          | 1                    | left-to-right       |
-
-
-
-## Grammar observations
-
-| Production rule           | Observations                                                               |
-|---------------------------|----------------------------------------------------------------------------|
-| assignment_expression     | Requires backtracking (ambiguity with conditional expression)              |
-| unary_expression          | Requires backtracking (ambiguity with postfix_expression and use of sizeof)|

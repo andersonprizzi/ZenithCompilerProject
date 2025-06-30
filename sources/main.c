@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     CC71_GetToken();    // Reads the first token.
 
     // Lexical-syntactic recognition.
-    if (CC71_ParseTranslationUnit()) {
+    if (translation_unit()) {
         printf("Reconheceu o codigo-fonte.\n");
     } else {
         printf("Nao reconheceu o codigo-fonte.\n");
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
         CC71_GetToken();
 	}*/
 
-	if (currentChar == -1) CC71_LogMessage(CC71_LOG_INFO, "The lexical-syntactic analyzer completed the operations successfully.");
+	//if (currentChar == -1) CC71_LogMessage(CC71_LOG_INFO, "The lexical-syntactic analyzer completed the operations successfully.");
 
 	fclose(CC71_GlobalInputFile);
 	fclose(CC71_GlobalOutputFile);

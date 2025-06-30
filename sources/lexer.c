@@ -26,21 +26,38 @@ int palavra_reservada(char lex[]) {
 /////////////////////////////////////////////////////////////////////////////
 
 void marcaPosToken() {
-	pilhacon[topcontexto].posglobal=ftell(CC71_GlobalInputFile);
-	pilhacon[topcontexto].tkant = CC71_GlobalTokenNumber;
-	pilhacon[topcontexto].cant=currentChar;
-    strcpy(pilhacon[topcontexto].lexant,lex);
+    long pos = ftell(CC71_GlobalInputFile);
+    //CC71_LogMessage(CC71_LOG_DEBUG, "marcaPosToken: Marcando posicao de token no arquivo (offset = %ld), token atual = %d ('%s'), char atual = '%c', indice de contexto = %d", pos, CC71_GlobalTokenNumber, lex, currentChar, topcontexto);
+    pilhacon[topcontexto].posglobal = pos;
+    pilhacon[topcontexto].tkant = CC71_GlobalTokenNumber;
+    pilhacon[topcontexto].cant = currentChar;
+    strcpy(pilhacon[topcontexto].lexant, lex);
     topcontexto++;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void restauraPosToken() {
+/*void restauraPosToken() {
+    CC71_LogMessage(CC71_LOG_DEBUG, "Restoring token position to: %d", savedIndex);
+
     topcontexto--;
 	fseek(CC71_GlobalInputFile,pilhacon[topcontexto].posglobal,SEEK_SET);
     currentChar=pilhacon[topcontexto].cant;
 	CC71_GlobalTokenNumber = pilhacon[topcontexto].tkant;
     strcpy(lex,pilhacon[topcontexto].lexant);
+}*/
+
+void restauraPosToken() {
+    if (topcontexto == 0) {
+        //CC71_LogMessage(CC71_LOG_ERROR, "restauraPosToken: tentativa de restauracaoo com pilha vazia (topcontexto = 0)");
+        return;
+    }
+
+    topcontexto--;
+    long pos = pilhacon[topcontexto].posglobal;
+    fseek(CC71_GlobalInputFile, pos, SEEK_SET);
+    currentChar = pilhacon[topcontexto].cant;
+    //CC71_LogMessage(CC71_LOG_DEBUG, "restauraPosToken: Restaurado para offset de arquivo %ld, token restaurado = %d ('%s'), char restaurado = '%c', índice de contexto = %d", pos, CC71_GlobalTokenNumber, lex, currentChar, topcontexto);
 }
 
 /////////////////////////////////////////////////////////////////////////////
