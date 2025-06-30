@@ -108,6 +108,7 @@
     /*/// DELIMITERS //////////////////////*/\
     X(TokenComma)                            \
     X(TokenSemicolon)                        \
+    X(TokenEllipsis)                         \
     X(TokenOpenParentheses)                  \
     X(TokenCloseParentheses)                 \
     X(TokenOpenBracket)                      \

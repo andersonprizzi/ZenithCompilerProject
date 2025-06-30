@@ -2,6 +2,100 @@
 This formal grammar was developed by Anderson Pastore Rizzi and is based on the ANSI C grammar presented by Jeff Lee. The initial rule of this grammar is translation_unit, which represents the entry point for parsing. The symbol ε denotes the empty production.
 
 
+## Token table
+
+| Category                      | Token                     |
+|-------------------------------|---------------------------|
+| **Identifiers and constants** | TokenIdentifier           |
+|                               | TokenIntConst             |
+|                               | TokenFloatConst           |
+|                               | TokenString               |
+| **Primitive types**           | TokenVoid                 |
+|                               | TokenChar                 |
+|                               | TokenShort                |
+|                               | TokenInt                  |
+|                               | TokenLong                 |
+|                               | TokenFloat                |
+|                               | TokenDouble               |
+|                               | TokenBool                 |
+|                               | TokenComplex              |
+| **Composite types**           | TokenStruct               |
+|                               | TokenUnion                |
+|                               | TokenEnum                 |
+| **Type modifiers**            | TokenSigned               |
+|                               | TokenUnsigned             |
+| **Type qualifiers**           | TokenConst                |
+|                               | TokenVolatile             |
+|                               | TokenRestrict             |
+|                               | TokenAtomic               |
+| **Storage specifiers**        | TokenAuto                 |
+|                               | TokenExtern               |
+|                               | TokenRegister             |
+|                               | TokenStatic               |
+|                               | TokenTypedef              |
+| **Arithmetic operators**      | TokenPlus                 |
+|                               | TokenMinus                |
+|                               | TokenAsterisk             |
+|                               | TokenDivision             |
+|                               | TokenMod                  |
+|                               | TokenIncrement            |
+|                               | TokenDecrement            |
+| **Assignment operators**      | TokenAssign               |
+|                               | TokenPlusAssign           |
+|                               | TokenMinusAssign          |
+|                               | TokenMulAssign            |
+|                               | TokenDivAssign            |
+|                               | TokenModAssign            |
+|                               | TokenAndAssign            |
+|                               | TokenOrAssign             |
+|                               | TokenXorAssign            |
+|                               | TokenLeftShiftAssign      |
+|                               | TokenRightShiftAssign     |
+| **Relational operators**      | TokenEqual                |
+|                               | TokenNotEqual             |
+|                               | TokenGreaterThan          |
+|                               | TokenLessThan             |
+|                               | TokenGreaterEqual         |
+|                               | TokenLessEqual            |
+| **Logical operators**         | TokenLogicalNot           |
+|                               | TokenLogicalAnd           |
+|                               | TokenLogicalOr            |
+| **Bitwise operators**         | TokenBitwiseAnd_AddressOf |
+|                               | TokenBitwiseOr            |
+|                               | TokenBitwiseXor           |
+|                               | TokenBitwiseNot           |
+|                               | TokenLeftShift            |
+|                               | TokenRightShift           |
+| **Member access operators**   | TokenDot                  |
+|                               | TokenArrow                |
+| **Conditional operators**     | TokenQuestionMark         |
+|                               | TokenColon                |
+| **Delimiters**                | TokenComma                |
+|                               | TokenSemicolon            |
+|                               | TokenEllipsis             |
+|                               | TokenOpenParentheses      |
+|                               | TokenCloseParentheses     |
+|                               | TokenOpenBracket          |
+|                               | TokenCloseBracket         |
+|                               | TokenOpenBrace            |
+|                               | TokenCloseBrace           |
+| **Control keywords**          | TokenIf                   |
+|                               | TokenElse                 |
+|                               | TokenSwitch               |
+|                               | TokenCase                 |
+|                               | TokenDefault              |
+|                               | TokenWhile                |
+|                               | TokenDo                   |
+|                               | TokenFor                  |
+|                               | TokenBreak                |
+|                               | TokenContinue             |
+|                               | TokenReturn               |
+|                               | TokenGoto                 |
+|                               | TokenSizeof               |
+|                               | TokenInline               |
+| **End of file**               | TokenEndOfFile            |
+
+
 
 ## Grammar rule for the fundamental unit of analysis
 ```bnf
@@ -40,6 +134,13 @@ external_definition
 
 ## Grammar rules for declaration
 ```bnf
+declaration_specifier
+    : storage_specifier
+    | type_specifier
+    | type_qualifier
+    ;
+
+
 declaration_specifiers
     : declaration_specifier declaration_specifiers_sequence
     ;
@@ -57,52 +158,9 @@ declaration_specifiers_sequence
     ;
 
 
-declaration_specifier
-    : storage_specifier
-    | type_specifier
-    | type_qualifier
-    ;
-
-
-storage_specifier
-    : TokenAuto
-    | TokenExtern
-    | TokenRegister
-    | TokenStatic
-    | TokenTypedef
-    ;
-
-
-type_specifier
-    : primitive_type_specifier
-    | composite_type_specifier
-    ;
-
-
-primitive_type_specifier
-    : TokenVoid
-    | TokenChar
-    | TokenShort
-    | TokenInt
-    | TokenLong
-    | TokenFloat
-    | TokenDouble
-    | TokenBool
-    | TokenComplex
-    ;
-
-
-type_qualifier
-    : TokenConst
-    | TokenVolatile
-    | TokenRestrict
-    | TokenAtomic
-    ;
-
-
 declaration_list
-	: init_declarator declaration_list_sequence
-	;
+    : init_declarator declaration_list_sequence
+    ;
 
 
 declaration_list_sequence
@@ -209,8 +267,9 @@ pointer
 
 
 pointer_suffix
-    : type_qualifier_list pointer_suffix
-    | pointer_suffix
+    : type_qualifier_list pointer
+    | type_qualifier_list
+    | pointer
     | ε
     ;
 ```
@@ -288,91 +347,6 @@ initializer_sequence
 
 
 
-## Grammar rules for ...
-```bnf
-unary_operator
-	: '&'
-	| '*'
-	| '+'
-	| '-'
-	| '~'
-	| '!'
-	;
-
-
-assignment_operator
-	: '='
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	| LEFT_ASSIGN
-	| RIGHT_ASSIGN
-	| AND_ASSIGN
-	| XOR_ASSIGN
-	| OR_ASSIGN
-	;
-
-
-storage_specifier
-    : TokenAuto
-    | TokenExtern
-    | TokenRegister
-    | TokenStatic
-    | TokenTypedef
-    ;
-
-
-type_specifier
-    : primitive_type_specifier
-    | composite_type_specifier
-    ;
-
-
-type_qualifier
-    : TokenConst
-    | TokenVolatile
-    | TokenRestrict
-    | TokenAtomic
-    ;
-
-
-type_qualifier_list
-    : type_qualifier type_qualifier_list_sequence
-    ;
-
-
-type_qualifier_list_sequence
-    : type_qualifier type_qualifier_list_sequence
-    | ε
-    ;
-
-
-primitive_type_specifier 
-    : TokenVoid
-    | TokenChar
-    | TokenShort
-    | TokenInt
-    | TokenLong
-    | TokenFloat
-    | TokenDouble
-    | TokenBool
-    | TokenComplex
-    ;
-
-
-composite_type_specifier
-    : struct_or_union_specifier
-    | enumerator_specifier
-    ;
-
-specifier_qualifier_list
-    :
-```
-
-
-
 ## Grammar rules for structures and enumerations
 ```bnf
 struct_or_union_specifier
@@ -442,7 +416,85 @@ enumerator_suffix
 ## Grammar rules for statements
 ```bnf
 compound_statement
-    : TODO
+    : TokenOpenBrace TokenCloseBrace
+    | TokenOpenBrace statement_list TokenCloseBrace
+    | TokenOpenBrace declaration_list TokenCloseBrace
+    | TokenOpenBrace declaration_list statement_list TokenCloseBrace
+    ;
+
+
+statement_list
+    : statement statement_list_sequence
+    ;
+
+
+statement_list_sequence
+    : statement statement_list_sequence
+    | ε
+    ;
+
+
+statement
+    : labeled_statement
+    | compound_statement
+    | expression_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
+    ;
+
+
+labeled_statement
+    : TokenIdentifier TokenColon statement
+    | TokenCase constant_expression TokenColon statement
+    | TokenDefault TokenColon statement
+    ;
+
+
+declaration_list
+    : declaration declaration_list_sequence
+    ;
+
+
+declaration_list_sequence
+    : declaration declaration_list_sequence
+    | ε
+    ;
+
+
+expression_statement
+    : TokenSemicolon
+    | expression TokenSemicolon
+    ;
+
+
+selection_statement
+    : TokenIf TokenOpenParentheses expression TokenCloseParentheses statement selection_statement_else_opt
+    | TokenSwitch TokenOpenParentheses expression TokenCloseParentheses statement
+    ;
+
+
+selection_statement_else_opt
+    : TokenElse statement
+    | ε
+    ;
+
+
+iteration_statement
+    : TokenWhile TokenOpenParentheses expression TokenCloseParentheses statement
+    | TokenDo statement TokenWhile TokenOpenParentheses expression TokenCloseParentheses TokenSemicolon
+    | TokenFor TokenOpenParentheses expression_statement expression_statement TokenCloseParentheses statement
+    | TokenFor TokenOpenParentheses expression_statement expression_statement expression TokenCloseParentheses statement
+    ;
+
+
+jump_statement
+    : TokenGoto TokenIdentifier TokenSemicolon
+    | TokenContinue TokenSemicolon
+    | TokenBreak TokenSemicolon
+    | TokenReturn TokenSemicolon
+    | TokenReturn expression TokenSemicolon
+    ;
 ```
 
 
@@ -601,7 +653,7 @@ multiplicative_expression_suffix
 
 cast_expression
     : unary_expression
-    | TokenOpenParentheses type_specifier TokenCloseParentheses cast_expression
+    | TokenOpenParentheses type_name TokenCloseParentheses cast_expression
     ;
 
 
@@ -611,7 +663,7 @@ unary_expression
     | TokenDecrement unary_expression
     | unary_operator cast_expression
     | TokenSizeof unary_expression
-    | TokenSizeof TokenOpenParentheses type_specifier TokenCloseParentheses
+    | TokenSizeof TokenOpenParentheses type_name TokenCloseParentheses
     ;
 
 
@@ -653,6 +705,116 @@ primary_expression
     | TokenFloatConst
     | TokenString
     | TokenOpenParentheses expression TokenCloseParentheses
+    ;
+```
+
+
+
+## Grammar rules for type specifiers, qualifiers, and operators
+```bnf
+type_specifier
+    : primitive_type_specifier
+    | composite_type_specifier
+    ;
+
+
+primitive_type_specifier
+    : TokenVoid
+    | TokenChar
+    | TokenShort
+    | TokenInt
+    | TokenLong
+    | TokenFloat
+    | TokenDouble
+    | TokenBool
+    | TokenComplex
+    ;
+
+
+composite_type_specifier
+    : struct_or_union_specifier
+    | enumerator_specifier
+    ;
+
+
+storage_specifier
+    : TokenAuto
+    | TokenExtern
+    | TokenRegister
+    | TokenStatic
+    | TokenTypedef
+    ;
+
+
+type_qualifier
+    : TokenConst
+    | TokenVolatile
+    | TokenRestrict
+    | TokenAtomic
+    ;
+
+
+type_qualifier_list
+    : type_qualifier type_qualifier_list_sequence
+    ;
+
+
+type_qualifier_list_sequence
+    : type_qualifier type_qualifier_list_sequence
+    | ε
+    ;
+
+
+specifier_qualifier_list
+    : specifier_qualifier specifier_qualifier_list_sequence
+    ;
+
+
+specifier_qualifier_list_sequence
+    : specifier_qualifier specifier_qualifier_list_sequence
+    | ε
+    ;
+
+
+specifier_qualifier
+    : type_specifier
+    | type_qualifier
+    ;
+
+
+type_name
+    : specifier_qualifier_list type_name_suffix
+    ;
+
+
+type_name_suffix
+    : abstract_declarator
+    | ε
+    ;
+
+
+unary_operator
+    : TokenBitwiseAnd_AddressOf
+    | TokenAsterisk
+    | TokenPlus
+    | TokenMinus
+    | TokenBitwiseNot
+    | TokenLogicalNot
+    ;
+
+
+assignment_operator
+    : TokenAssign
+    | TokenMulAssign
+    | TokenDivAssign
+    | TokenModAssign
+    | TokenPlusAssign
+    | TokenMinusAssign
+    | TokenLeftShiftAssign
+    | TokenRightShiftAssign
+    | TokenAndAssign
+    | TokenXorAssign
+    | TokenOrAssign
     ;
 ```
 
