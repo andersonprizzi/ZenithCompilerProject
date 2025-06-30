@@ -65,22 +65,22 @@ declaration_specifiers_sequence
 
 
 declaration_list
-    : init_declarator declaration_list_sequence
+    : declaration declaration_list_sequence
     ;
 
 
 declaration_list_sequence
-    : TokenComma init_declarator declaration_list_sequence
+    : declaration declaration_list_sequence
     | ε
     ;
 
 
 init_declarator
-    : declarator init_declarator_suffix
+    : declarator init_declarator_sequence
     ;
 
 
-init_declarator_suffix
+init_declarator_sequence
     : TokenAssign initializer
     | ε
     ;

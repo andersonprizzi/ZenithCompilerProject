@@ -21,6 +21,7 @@
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_BLUE    "\x1b[34m"
 #define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
 
 
 
@@ -49,7 +50,7 @@ void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char*
             int token = va_arg(args, int);
             const char* lexeme = va_arg(args, const char*);
             fprintf(stderr, "%s[%s]%s [ACCEPTED TOKEN]%s %d ('%s')\n",
-                    color, levelStr, ANSI_COLOR_YELLOW, ANSI_COLOR_RESET, token, lexeme);
+                    color, levelStr, ANSI_COLOR_MAGENTA, ANSI_COLOR_RESET, token, lexeme);
             break;
         }
         case CC71_LOG_EVENT_ENTER_FUNCTION: {
