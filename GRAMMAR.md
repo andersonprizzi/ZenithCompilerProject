@@ -246,7 +246,7 @@ initializer_list
     ;
 
 initializer_sequence
-    : TokenAssign initializer initializer_sequence
+    : TokenComma initializer initializer_sequence
     | ε
     ;
 ```
@@ -409,6 +409,7 @@ jump_statement
 ```bnf
 constant_expression
     : conditional_expression
+    ;
 
 
 argument_expression_list
@@ -570,16 +571,6 @@ unary_expression
     | unary_operator cast_expression
     | TokenSizeof unary_expression
     | TokenSizeof TokenOpenParentheses type_name TokenCloseParentheses
-    ;
-
-
-unary_operator
-    : TokenBitwiseAnd_AddressOf
-    | TokenAsterisk
-    | TokenPlus
-    | TokenMinus
-    | TokenBitwiseNot
-    | TokenLogicalNot
     ;
 
 

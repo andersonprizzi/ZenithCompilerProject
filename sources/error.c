@@ -2,9 +2,14 @@
 // LIBRARY INCLUDES                                                        //
 /////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "global.h"
+#include "logger.h"
 #include "error.h"
+#include "utils.h"
+#include "lexer.h"
+#include "parser.h"
+
+extern const char* tokens[];
 
 
 
@@ -63,22 +68,43 @@ const char* CC71_GetErrorType(CC71_ErrorType type) {
 /////////////////////////////////////////////////////////////////////////////
 
 
-void CC71_ReportError(CC71_ErrorCode code, int line, int column) {
+int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
+    const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
 
     if (!entry) {
-        fprintf(stderr, "[ERROR][%d:%d] Unknown error code %d.\n", line, column, code);
-        return;
+        CC71_LogMessage(CC71_LOG_ERROR, "[%d:%d] Unknown error code %d.", line, column, code);
+        return 1;
     }
 
-    fprintf (stderr, "[%s][%d:%d] %s\n",
-            CC71_GetErrorType(entry->type),
-            line,
-            column,
-            entry->message
-    );
+    if (fmt) {
+        va_list args;
+        va_start(args, fmt);
+
+        fprintf(stderr, "[%s][%d:%d] ", errorType, line, column);
+        vfprintf(stderr, fmt, args);
+        fprintf(stderr, "\n");
+        fflush(stderr);
+
+        va_end(args);
+    } else {
+        CC71_LogMessage(CC71_LOG_ERROR, "[%s][%d:%d] %s", errorType, line, column, entry->message);
+    }
 
     if (entry->type == CC71_ERROR_FATAL) {
         exit(EXIT_FAILURE);
     }
+
+    return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+const char* CC71_TokenToString(int token) {
+    if (token >= 0 && token < TokenCount && tokens[token]) {
+        return tokens[token];
+    }
+    return "Invalid token";
 }

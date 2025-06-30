@@ -12,6 +12,8 @@ typedef enum {
     CC71_LOG_ERROR,   // Critical issues that prevent continued execution.
 } CC71_LogLevel;
 
+void CC71_LogMessage(CC71_LogLevel logLevel, const char* format, ...);
+
 
 
 /////////////////////////////////////////////////////////////////////////////

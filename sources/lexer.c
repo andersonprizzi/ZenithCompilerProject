@@ -146,7 +146,7 @@ void CC71_GetToken() {
                         }
 
                         if (!hasDigitsAfterDot) {
-                            CC71_ReportError(CC71_ERR_LEX_INVALID_NUMBER, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn);
+                            CC71_ReportError(CC71_ERR_LEX_INVALID_CHAR, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Unexpected character '%c' (ASCII %d).", currentChar, currentChar);
                             CC71_GlobalTokenNumber = -1;
                             return;
                         }
