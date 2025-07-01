@@ -1106,8 +1106,10 @@ int identifier_list_sequence() {
 int initializer() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "initializer()");
 
-    CC71_BacktrackingStart();
+    printf("\n############## TEST 1 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
 
+    CC71_BacktrackingStart();
+    printf("\n############## TEST 2 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
     if (assignment_expression()) {
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "initializer()");
@@ -2264,7 +2266,11 @@ int argument_expression_sequence() {
 int assignment_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "assignment_expression()");
 
+    printf("\n############## TEST 3 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
+
     CC71_BacktrackingStart();
+
+    printf("\n############## TEST 4 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     if (unary_expression()) {
         if (assignment_operator()) {
@@ -2276,6 +2282,8 @@ int assignment_expression() {
         }
     }
     CC71_BacktrackingRestore();
+
+    printf("\n############## TEST REPROVOU ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
     
     CC71_BacktrackingStart();
     if (conditional_expression()) {
@@ -2295,6 +2303,8 @@ int assignment_expression() {
 
 int conditional_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "conditional_expression()");
+
+    printf("\n############## TEST 5 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     CC71_BacktrackingStart();
 

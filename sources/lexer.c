@@ -27,12 +27,12 @@ int palavra_reservada(char lex[]) {
 
 void CC71_BacktrackingStart() {
     long pos = ftell(CC71_GlobalInputFile);
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[EMPILHA] Current token = %d ('%s'); context index = %d;", CC71_GlobalTokenNumber, lex, topcontexto);
     pilhacon[topcontexto].posglobal = pos;
     pilhacon[topcontexto].tkant = CC71_GlobalTokenNumber;
     pilhacon[topcontexto].cant = currentChar;
     strcpy(pilhacon[topcontexto].lexant, lex);
     topcontexto++;
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[EMPILHA] Current token = %d ('%s'); context index = %d;", CC71_GlobalTokenNumber, lex, topcontexto);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -47,6 +47,8 @@ void CC71_BacktrackingRestore() {
     long pos = pilhacon[topcontexto].posglobal;
     fseek(CC71_GlobalInputFile, pos, SEEK_SET);
     currentChar = pilhacon[topcontexto].cant;
+    CC71_GlobalTokenNumber = pilhacon[topcontexto].tkant;
+    strcpy(lex, pilhacon[topcontexto].lexant);
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[DESEMPILHA] token restaurado = %d ('%s'), indice de contexto = %d", CC71_GlobalTokenNumber, lex, topcontexto);
 }
 
@@ -56,8 +58,7 @@ void CC71_BacktrackingEnd() {
     if (topcontexto > 0) {
         topcontexto--;
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC,
-            "[DESEMPILHA] Desempilhando contexto. Token atual = %d ('%s'), novo indice de contexto = %d",
-            CC71_GlobalTokenNumber, lex, topcontexto);
+            "[DESEMPILHA] Desempilhando contexto. Token atual = %d ('%s'), novo indice de contexto = %d", CC71_GlobalTokenNumber, lex, topcontexto);
     }
 }
 
