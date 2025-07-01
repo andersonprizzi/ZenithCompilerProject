@@ -49,23 +49,23 @@ void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char*
         case CC71_LOG_EVENT_ACCEPTED_TOKEN: {
             int token = va_arg(args, int);
             const char* lexeme = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [ACCEPTED TOKEN]%s %d ('%s')\n",
+            fprintf(stderr, "%s[%s]%s [ACCEPTED TOKEN................]%s %d ('%s')\n",
                     color, levelStr, ANSI_COLOR_MAGENTA, ANSI_COLOR_RESET, token, lexeme);
             break;
         }
         case CC71_LOG_EVENT_ENTER_FUNCTION: {
             const char* funcName = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [ENTERING FUNCTION]%s %s\n", color, levelStr, ANSI_COLOR_YELLOW, ANSI_COLOR_RESET, funcName);
+            fprintf(stderr, "%s[%s]%s [ENTERING FUNCTION.............]%s %s\n", color, levelStr, ANSI_COLOR_YELLOW, ANSI_COLOR_RESET, funcName);
             break;
         }
         case CC71_LOG_EVENT_EXIT_SUCCESS: {
             const char* funcName = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [EXITING FUNCTION (SUCCESS)]%s %s\n", color, levelStr, ANSI_COLOR_GREEN, ANSI_COLOR_RESET, funcName);
+            fprintf(stderr, "%s[%s]%s [EXITING FUNCTION (SUCCESS)....]%s %s\n", color, levelStr, ANSI_COLOR_GREEN, ANSI_COLOR_RESET, funcName);
             break;
         }
         case CC71_LOG_EVENT_EXIT_FAILURE: {
             const char* funcName = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [EXITING FUNCTION (FAILURE)]%s %s\n", color, levelStr, ANSI_COLOR_RED, ANSI_COLOR_RESET, funcName);
+            fprintf(stderr, "%s[%s]%s [EXITING FUNCTION (FAILURE)....]%s %s\n", color, levelStr, ANSI_COLOR_RED, ANSI_COLOR_RESET, funcName);
             break;
         }
         default: {

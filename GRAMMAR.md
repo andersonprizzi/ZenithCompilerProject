@@ -53,8 +53,13 @@ declaration_specifiers
 
 
 declaration_suffix
-    : TokenSemicolon
-    | declaration_list TokenSemicolon
+    : init_declarator declaration_suffix_sequence
+    ;
+
+
+declaration_suffix_sequence
+    : TokenComma init_declarator declaration_suffix_sequence
+    | ε
     ;
 
 
@@ -65,12 +70,12 @@ declaration_specifiers_sequence
 
 
 declaration_list
-    : declaration declaration_list_sequence
+    : external_definition declaration_list_sequence
     ;
 
 
 declaration_list_sequence
-    : declaration declaration_list_sequence
+    : external_definition declaration_list_sequence
     | ε
     ;
 
@@ -381,12 +386,12 @@ labeled_statement
 
 
 declaration_list
-    : declaration declaration_list_sequence
+    : external_definition declaration_list_sequence
     ;
 
 
 declaration_list_sequence
-    : declaration declaration_list_sequence
+    : external_definition declaration_list_sequence
     | ε
     ;
 

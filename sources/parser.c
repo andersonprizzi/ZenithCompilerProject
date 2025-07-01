@@ -15,10 +15,10 @@
 // PREPROCESSING DEFINITIONS                                               //
 /////////////////////////////////////////////////////////////////////////////
 
-#define BACKTRACK_START() marcaPosToken()
-#define BACKTRACKING_RESTORE() restauraPosToken()
-#define BACKTRACK_FAIL() restauraPosToken(); return 0
-#define BACKTRACK_END()   /* Success */
+#define BACKTRACK_START() CC71_BacktrackingStart()
+#define BACKTRACKING_RESTORE() CC71_BacktrackingRestore()
+#define BACKTRACK_FAIL() CC71_BacktrackingRestore(); return 0
+#define BACKTRACK_END()   CC71_BacktrackingEnd()
 #define PARSE_FAIL 0
 #define PARSE_SUCCESS 1
 
@@ -28,22 +28,9 @@
 // FUNCTION IMPLEMENTATIONS                                                //
 /////////////////////////////////////////////////////////////////////////////
 
-
-int match(int expected) {
-    if (CC71_GlobalTokenNumber == expected) {
-        CC71_GetToken();
-        return 1;
-    }
-    return 0;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
+// OK
 int translation_unit() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "translation_unit()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
     if (!external_declaration()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "translation_unit()");
@@ -66,22 +53,24 @@ int translation_unit() {
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int translation_unit_sequence() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "translation_unit_sequence()");
     
-    BACKTRACK_START();
+    if (CC71_GlobalTokenNumber == TokenEndOfFile) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "translation_unit_sequence() (EOF)");
+        return PARSE_SUCCESS;
+    }
+
     if (external_declaration()) {
         if (translation_unit_sequence()) {
-            BACKTRACK_END();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "translation_unit_sequence()");
             return PARSE_SUCCESS;
         }
     }
-    BACKTRACKING_RESTORE();
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "translation_unit_sequence()");
     return PARSE_SUCCESS;
@@ -91,24 +80,29 @@ int translation_unit_sequence() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int external_declaration() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "external_declaration()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (function_definition()) {
+        CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "external_declaration()");
         return PARSE_SUCCESS;
     }
-    BACKTRACK_FAIL();
 
-    BACKTRACK_START();
+    CC71_BacktrackingRestore();
+    CC71_BacktrackingStart();
+
     if (external_definition()) {
+        CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "external_declaration()");
         return PARSE_SUCCESS;
     }
-    BACKTRACK_FAIL();
 
+    CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "external_declaration()");
     return PARSE_FAIL;
 }
@@ -117,16 +111,16 @@ int external_declaration() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int function_definition() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "function_definition()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
-    if (declaration_specifiers() == PARSE_FAIL) {
+    if (!declaration_specifiers()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "function_definition()");
         return PARSE_FAIL;
     }
 
-    if (declarator() == PARSE_FAIL) {
+    if (!declarator()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "function_definition()");
         return PARSE_FAIL;
     }
@@ -160,21 +154,35 @@ int external_definition() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+int declaration_specifiers() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifiers()");
+    
+    if (!declaration_specifier()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_specifiers()");
+        return PARSE_FAIL;
+    }
+
+    declaration_specifiers_sequence(); 
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_specifiers()");
+    return PARSE_SUCCESS;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+// OK
 int declaration_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifier()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
-    BACKTRACK_START();
-    if (storage_specifier()) { BACKTRACK_END(); return PARSE_SUCCESS; }
-    BACKTRACKING_RESTORE();
-
-    BACKTRACK_START();
-    if (type_specifier()) { BACKTRACK_END(); return PARSE_SUCCESS; }
-    BACKTRACKING_RESTORE();
-
-    BACKTRACK_START();
-    if (type_qualifier()) { BACKTRACK_END(); return PARSE_SUCCESS; }
-    BACKTRACKING_RESTORE();
+    if (storage_specifier()) { 
+        return PARSE_SUCCESS; 
+    } else if (type_specifier()) { 
+        return PARSE_SUCCESS; 
+    } else if (type_qualifier()) { 
+        return PARSE_SUCCESS; 
+    }
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_specifier()");
     return PARSE_FAIL;
@@ -184,61 +192,59 @@ int declaration_specifier() {
 /////////////////////////////////////////////////////////////////////////////
 
 
-int declaration_specifiers() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifiers()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
-    if (!declaration_specifier()) return 0;
-    return declaration_specifiers_sequence();
+// OK
+int declaration_suffix() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_suffix()");
+
+    CC71_BacktrackingStart();
+
+    if (!init_declarator()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
+        return PARSE_FAIL;
+    }
+
+    while (CC71_GlobalTokenNumber == TokenComma) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+        CC71_GetToken();
+
+        if (!init_declarator()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
+            return PARSE_FAIL;
+        }
+    }
+
+    if (CC71_GlobalTokenNumber != TokenSemicolon) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
+        return PARSE_FAIL;
+    }
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+    CC71_GetToken();
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
-int declaration_suffix() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_suffix()");
+// OK
+int declaration_specifiers_sequence() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifiers_sequence()");
 
-    BACKTRACK_START();
-    if (CC71_GlobalTokenNumber == TokenSemicolon) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
-        CC71_GetToken();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix()");
-        return PARSE_SUCCESS;
-    }
-    BACKTRACK_FAIL();
-
-    BACKTRACK_START();
-    if (declaration_list()) {
-        if (CC71_GlobalTokenNumber == TokenSemicolon) {
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
-            CC71_GetToken();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix()");
+    if (declaration_specifier()) {
+        if (declaration_specifiers_sequence()) {
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_specifiers_sequence()");
             return PARSE_SUCCESS;
         }
     }
 
-    BACKTRACKING_RESTORE();
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
-    return PARSE_FAIL;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-int declaration_specifiers_sequence() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifiers_sequence()");
-
-    BACKTRACK_START();
-    if (declaration_specifier()) {
-        if (declaration_specifiers_sequence()) {
-            return 1;
-        }
-    }
-    BACKTRACKING_RESTORE(); // No more declaration specifiers found.
-
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the declaration_specifiers_sequence() function.");
-    return 1;
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_specifiers_sequence()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -337,7 +343,8 @@ int init_declarator_sequence() {
 int declarator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declarator()");
 
-    BACKTRACK_START();
+    //CC71_BacktrackingStart();
+
     if (pointer_declarator()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declarator()");
         return PARSE_SUCCESS;
@@ -347,7 +354,8 @@ int declarator() {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declarator()");
         return PARSE_SUCCESS;
     }
-    BACKTRACK_FAIL();
+    
+    //CC71_BacktrackingRestore();
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declarator()");
     return PARSE_FAIL;
@@ -357,20 +365,25 @@ int declarator() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int pointer_declarator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "pointer_declarator()");
 
-    BACKTRACK_START();
+    //CC71_BacktrackingStart();
+
     if (!pointer()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "pointer_declarator()");
-        BACKTRACK_FAIL();
+        //CC71_BacktrackingRestore();
+        return PARSE_FAIL;
     }
 
     if (!direct_declarator()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "pointer_declarator()");
-        BACKTRACK_FAIL();
+        //CC71_BacktrackingRestore();
+        return PARSE_FAIL;
     }
-    BACKTRACK_END();
+
+    //CC71_BacktrackingEnd();
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "pointer_declarator()");
     return PARSE_SUCCESS;
@@ -380,22 +393,26 @@ int pointer_declarator() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int direct_declarator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "direct_declarator()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (!direct_declarator_base()) {
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator()");
-        BACKTRACKING_RESTORE();
         return PARSE_FAIL;
     }
 
     if (!direct_declarator_sequence()) {
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator()");
-        BACKTRACKING_RESTORE();
+
         return PARSE_FAIL;
     }
-    
+
+    CC71_BacktrackingEnd();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator()");
     return PARSE_SUCCESS;
 }
@@ -408,10 +425,12 @@ int direct_declarator_base() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "direct_declarator_base()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenIdentifier) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+        CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_base()");
         return PARSE_SUCCESS;
     }
@@ -420,19 +439,28 @@ int direct_declarator_base() {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
         
-        if (!declarator()) BACKTRACK_FAIL();
-        if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
-            CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-            BACKTRACK_FAIL();
+        if (!declarator()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_base()");
+            return PARSE_FAIL;
         }
-        CC71_GetToken();
 
+        if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
+            CC71_BacktrackingRestore();
+            CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_base()");
+            return PARSE_FAIL;
+        }
+
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+        CC71_GetToken();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_base()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
 
+    CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_base()");
-    BACKTRACKING_RESTORE();
     return PARSE_FAIL;
 }
 
@@ -440,20 +468,25 @@ int direct_declarator_base() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int direct_declarator_sequence() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_declarator_sequence() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "direct_declarator_sequence()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (direct_declarator_suffix()) {
         if (!direct_declarator_sequence()) {
-            BACKTRACKING_RESTORE();
+            CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_sequence()");
             return PARSE_FAIL;
         }
+
+        CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_sequence()");
         return PARSE_SUCCESS;
     }
 
+    CC71_BacktrackingEnd();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_sequence()");
     return PARSE_SUCCESS;
 }
@@ -463,63 +496,90 @@ int direct_declarator_sequence() {
 
 
 int direct_declarator_suffix() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_declarator_suffix() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "direct_declarator_suffix()");
 
-    BACKTRACK_START();
-    switch(CC71_GlobalTokenNumber) {
+    CC71_BacktrackingStart();
+
+    switch (CC71_GlobalTokenNumber) {
         case TokenOpenBracket:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
 
             if (CC71_GlobalTokenNumber == TokenCloseBracket) {
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
                 CC71_GetToken();
+                CC71_BacktrackingEnd();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_suffix()");
                 return PARSE_SUCCESS;
             }
 
-            if (!constant_expression()) BACKTRACK_FAIL();
+            if (!constant_expression()) {
+                CC71_BacktrackingRestore();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_suffix()");
+                return PARSE_FAIL;
+            }
 
             if (CC71_GlobalTokenNumber != TokenCloseBracket) {
                 CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-                BACKTRACK_FAIL();
+                CC71_BacktrackingRestore();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_suffix()");
+                return PARSE_FAIL;
             }
 
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            BACKTRACK_END();
+            CC71_BacktrackingEnd();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_suffix()");
             return PARSE_SUCCESS;
-        
+
         case TokenOpenParentheses:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
+
             if (parameter_type_list()) {
                 if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
                     CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-                    BACKTRACK_FAIL();
+                    CC71_BacktrackingRestore();
+                    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_suffix()");
+                    return PARSE_FAIL;
                 }
 
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
                 CC71_GetToken();
-                BACKTRACK_END();
+                CC71_BacktrackingEnd();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_suffix()");
                 return PARSE_SUCCESS;
 
             } else if (identifier_list()) {
                 if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
                     CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-                    BACKTRACK_FAIL();
+                    CC71_BacktrackingRestore();
+                    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_suffix()");
+                    return PARSE_FAIL;
                 }
+
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
                 CC71_GetToken();
-                BACKTRACK_END();
-                return 1;
+                CC71_BacktrackingEnd();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_suffix()");
+                return PARSE_SUCCESS;
+
             } else if (CC71_GlobalTokenNumber == TokenCloseParentheses) {
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
                 CC71_GetToken();
-                BACKTRACK_END();
-                return 1;
-            } else {
-                BACKTRACK_FAIL();
+                CC71_BacktrackingEnd();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "direct_declarator_suffix()");
+                return PARSE_SUCCESS;
             }
+
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_suffix()");
+            return PARSE_FAIL;
+
         default:
-            BACKTRACK_FAIL();
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_suffix()");
+            return PARSE_FAIL;
     }
 }
 
@@ -528,19 +588,23 @@ int direct_declarator_suffix() {
 
 
 int abstract_declarator() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the abstract_declarator() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "abstract_declarator()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (pointer()) {
         if (!abstract_declarator_sequence()) BACKTRACK_FAIL();
         BACKTRACK_END();
-        return 1;
+        return PARSE_SUCCESS;
     }
+
     if (direct_abstract_declarator()) {
         BACKTRACK_END();
-        return 1;
+        return PARSE_SUCCESS;
     }
+
     BACKTRACK_FAIL();
+    return PARSE_FAIL;
 }
 
 
@@ -548,14 +612,15 @@ int abstract_declarator() {
 
 
 int abstract_declarator_sequence() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the abstract_declarator_sequence() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "abstract_declarator_sequence()");
 
     BACKTRACK_START();
     if (direct_abstract_declarator()) {
         BACKTRACK_END();
         return 1;
     }
-    // epsilon
+    
+
     BACKTRACK_END();
     return 1;
 }
@@ -565,7 +630,7 @@ int abstract_declarator_sequence() {
 
 
 int direct_abstract_declarator() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_abstract_declarator() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "direct_abstract_declarator()");
 
     BACKTRACK_START();
     if (!direct_abstract_declarator_base()) BACKTRACK_FAIL();
@@ -579,7 +644,7 @@ int direct_abstract_declarator() {
 
 
 int direct_abstract_declarator_base() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_abstract_declarator_base() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "direct_abstract_declarator_base()");
 
     BACKTRACK_START();
     if (CC71_GlobalTokenNumber == TokenOpenParentheses) {
@@ -751,69 +816,81 @@ int pointer_suffix() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int parameter_type_list() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the parameter_type_list() function.");
-    
-    BACKTRACK_START();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_type_list()");
+
+    CC71_BacktrackingStart();
+
     if (!parameter_list()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_type_list()");
-        BACKTRACK_FAIL();
+        CC71_BacktrackingRestore();
+        return PARSE_FAIL;
     }
 
     if (!parameter_type_sequence()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_type_list()");
-        BACKTRACK_FAIL();
+        CC71_BacktrackingRestore();
+        return PARSE_FAIL;
     }
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_type_list()");
+    CC71_BacktrackingEnd();
     return PARSE_SUCCESS;
 }
+
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
 int parameter_type_sequence() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the parameter_type_sequence() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_type_sequence()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenComma) {
         CC71_GetToken();
         if (CC71_GlobalTokenNumber == TokenEllipsis) {
             CC71_GetToken();
-            BACKTRACK_END();
-            return 1;
+            CC71_BacktrackingEnd();
+            return PARSE_SUCCESS;
         } else {
             CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-            BACKTRACK_FAIL();
+            CC71_BacktrackingRestore();
+            return PARSE_FAIL;
         }
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    return PARSE_SUCCESS;
 }
+
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int parameter_list() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_list()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (!parameter_declaration()) {
-        BACKTRACKING_RESTORE();
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_list()");
         return PARSE_FAIL;
     }
 
     if (!parameter_sequence()) {
-        BACKTRACKING_RESTORE();
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_list()");
         return PARSE_FAIL;
     }
-    
+
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_list()");
+    CC71_BacktrackingEnd();
     return PARSE_SUCCESS;
 }
 
@@ -821,42 +898,61 @@ int parameter_list() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int parameter_sequence() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_sequence()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenComma) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!parameter_declaration()) BACKTRACK_FAIL();
-        if (!parameter_sequence()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!parameter_declaration()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_sequence()");
+            return PARSE_FAIL;
+        }
+
+        if (!parameter_sequence()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_sequence()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_sequence()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_sequence()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int parameter_declaration() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_declaration()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (!declaration_specifiers()) {
-        BACKTRACKING_RESTORE();
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_declaration()");
         return PARSE_FAIL;
     }
 
     if (!parameter_declaration_suffix()) {
-        BACKTRACKING_RESTORE();
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_declaration()");
         return PARSE_FAIL;
     }
-    
+
+    CC71_BacktrackingEnd();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_declaration()");
     return PARSE_SUCCESS;
 }
@@ -865,21 +961,27 @@ int parameter_declaration() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int parameter_declaration_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_declaration_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (declarator()) {
-        BACKTRACK_END();
-        return 1;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_declaration_suffix()");
+        return PARSE_SUCCESS;
     }
+
     if (abstract_declarator()) {
-        BACKTRACK_END();
-        return 1;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_declaration_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_declaration_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -889,25 +991,29 @@ int parameter_declaration_suffix() {
 int identifier_list() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "identifier_list()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber != TokenIdentifier) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "identifier_list()");
         CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-        BACKTRACK_FAIL();
+        CC71_BacktrackingRestore();
+        return PARSE_FAIL;
     }
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
     CC71_GetToken();
-    
+
     if (!identifier_list_sequence()) {
-        BACKTRACKING_RESTORE();
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "identifier_list()");
         return PARSE_FAIL;
     }
-    
+
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "identifier_list()");
+    CC71_BacktrackingEnd();
     return PARSE_SUCCESS;
 }
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1042,19 +1148,21 @@ int initializer_sequence() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_or_union_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "struct_or_union_specifier()");
 
-    BACKTRACK_START();
     if (CC71_GlobalTokenNumber == TokenStruct || CC71_GlobalTokenNumber == TokenUnion) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
 
         if (!struct_or_union_body()) {
-            BACKTRACKING_RESTORE();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "struct_or_union_specifier()");
             return PARSE_FAIL;
         }
@@ -1062,15 +1170,13 @@ int struct_or_union_specifier() {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "struct_or_union_specifier()");
         return PARSE_SUCCESS;
     }
-
-    BACKTRACKING_RESTORE();
+    
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "struct_or_union_specifier()");
     return PARSE_FAIL;
 }
 
 
-
-
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_or_union_body() {
@@ -1123,7 +1229,7 @@ int struct_or_union_body() {
 }
 
 
-
+/////////////////////////////////////////////////////////////////////////////
 
 
 int field_declaration_list() {
@@ -1137,6 +1243,7 @@ int field_declaration_list() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
 
 
 int field_declaration_list_sequence() {
@@ -1154,6 +1261,7 @@ int field_declaration_list_sequence() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_declaration() {
@@ -1181,7 +1289,7 @@ int struct_declaration() {
 }
 
 
-
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_declarator_list() {
@@ -1201,6 +1309,7 @@ int struct_declarator_list() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_declarator_list_sequence() {
@@ -1230,7 +1339,7 @@ int struct_declarator_list_sequence() {
 }
 
 
-
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_declarator_suffix() {
@@ -1253,6 +1362,7 @@ int struct_declarator_suffix() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
 
 
 int struct_declarator() {
@@ -1289,13 +1399,12 @@ int struct_declarator() {
 }
 
 
-
+/////////////////////////////////////////////////////////////////////////////
 
 
 int enumerator_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_specifier()");
 
-    BACKTRACK_START();
     if (CC71_GlobalTokenNumber == TokenEnum) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
@@ -1304,9 +1413,11 @@ int enumerator_specifier() {
         return 1;
     }
 
-    BACKTRACK_FAIL();
+    return PARSE_FAIL;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 int enumerator_body() {
@@ -1350,7 +1461,10 @@ int enumerator_body() {
     BACKTRACK_FAIL();
 }
 
-// enumerator_list
+
+/////////////////////////////////////////////////////////////////////////////
+
+
 int enumerator_list() {
     BACKTRACK_START();
     if (!enumerator()) BACKTRACK_FAIL();
@@ -1359,7 +1473,10 @@ int enumerator_list() {
     return 1;
 }
 
-// enumerator_list_sequence
+
+/////////////////////////////////////////////////////////////////////////////
+
+
 int enumerator_list_sequence() {
     BACKTRACK_START();
     if (CC71_GlobalTokenNumber == TokenComma) {
@@ -1403,6 +1520,9 @@ int enumerator() {
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+
+
 int enumerator_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_suffix()");
 
@@ -1423,13 +1543,15 @@ int enumerator_suffix() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int compound_statement() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "compound_statement()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber != TokenOpenBrace) {
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "compound_statement()");
-        BACKTRACKING_RESTORE();
         return PARSE_FAIL;
     }
 
@@ -1439,6 +1561,7 @@ int compound_statement() {
     if (CC71_GlobalTokenNumber == TokenCloseBrace) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+        CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "compound_statement()");
         return PARSE_SUCCESS;
     }
@@ -1448,39 +1571,45 @@ int compound_statement() {
             if (CC71_GlobalTokenNumber == TokenCloseBrace) {
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
                 CC71_GetToken();
+                CC71_BacktrackingEnd();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "compound_statement()");
                 return PARSE_SUCCESS;
             }
-
+            
+            CC71_BacktrackingRestore();
             CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-            BACKTRACK_FAIL();
+            return PARSE_FAIL;
         }
         
         if (CC71_GlobalTokenNumber == TokenCloseBrace) {
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
+            CC71_BacktrackingEnd();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "compound_statement()");
             return PARSE_SUCCESS;
         }
 
+        CC71_BacktrackingRestore();
         CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-        BACKTRACK_FAIL();
+        return PARSE_FAIL;
     }
 
     if (statement_list()) {
         if (CC71_GlobalTokenNumber == TokenCloseBrace) {
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
+            CC71_BacktrackingEnd();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "compound_statement()");
             return PARSE_SUCCESS;
         }
 
+        CC71_BacktrackingRestore();
         CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-        BACKTRACK_FAIL();
+        return PARSE_FAIL;
     }
 
     CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-    BACKTRACKING_RESTORE();
+    CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "compound_statement()");
     return PARSE_FAIL;
 }
@@ -1492,10 +1621,21 @@ int compound_statement() {
 int statement_list() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "statement_list()");
 
-    BACKTRACK_START();
-    if (!statement()) BACKTRACK_FAIL();
-    if (!statement_list_sequence()) BACKTRACK_FAIL();
-    BACKTRACK_END();
+    //BACKTRACK_START();
+    if (!statement()) {
+        //BACKTRACK_FAIL();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "statement_list()");
+        return PARSE_FAIL;
+    }
+
+    if (!statement_list_sequence()) {
+        //BACKTRACK_FAIL();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "statement_list()");
+        return PARSE_FAIL;
+    }
+
+    //BACKTRACK_END();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement_list()");
     return 1;
 }
 
@@ -1523,34 +1663,40 @@ int statement_list_sequence() {
 
 int statement() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "statement()");
+    CC71_BacktrackingStart();
 
-    BACKTRACK_START();
     if (labeled_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
     if (compound_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
     if (expression_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
     if (selection_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
     if (iteration_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
     if (jump_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
+        CC71_BacktrackingEnd();
         return PARSE_SUCCESS;
     }
 
-    BACKTRACKING_RESTORE();
+    CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "statement()");
     return PARSE_FAIL;
 }
@@ -1628,6 +1774,7 @@ int expression_statement() {
 
     if (expression()) {
         if (CC71_GlobalTokenNumber == TokenSemicolon) {
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "expression_statement()");
             return PARSE_SUCCESS;
@@ -1819,6 +1966,7 @@ int jump_statement() {
         BACKTRACK_END();
         return 1;
     }
+
     if (CC71_GlobalTokenNumber == TokenContinue) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
@@ -1845,27 +1993,36 @@ int jump_statement() {
         BACKTRACK_END();
         return 1;
     }
+
     if (CC71_GlobalTokenNumber == TokenReturn) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+
         if (CC71_GlobalTokenNumber == TokenSemicolon) {
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            BACKTRACK_END();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "jump_statement()");
+            return PARSE_SUCCESS;
         }
+
         if (expression()) {
             if (CC71_GlobalTokenNumber != TokenSemicolon) {
                 CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-                BACKTRACK_FAIL();
+                BACKTRACKING_RESTORE();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+                return PARSE_FAIL;
             }
+            
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            BACKTRACK_END();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "jump_statement()");
+            return PARSE_SUCCESS;
         }
+
         CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
         BACKTRACK_FAIL();
     }
+
     BACKTRACK_FAIL();
 }
 
@@ -1878,19 +2035,20 @@ int expression() {
 
     if (!assignment_expression()) {
         CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Expected assignment_expression in expression.");
-        return 0;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "expression()");
+        return PARSE_FAIL;
     }
+
     if (!expression_sequence()) {
-        // expression_sequence pode ser vazio, então falha aqui só se houver erro real
-        // Geralmente, expressão_sequence retorna 1 mesmo no caso epsilon
         return 0;
     }
-    return 1;
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 
 
 int expression_sequence() {
@@ -1899,11 +2057,11 @@ int expression_sequence() {
     BACKTRACK_START();
 
     if (CC71_GlobalTokenNumber == TokenComma) {
-        CC71_GetToken();  // consome a vírgula
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+        CC71_GetToken();
 
         if (!assignment_expression()) {
-            CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn,
-                             "Expected assignment_expression after ','.");
+            CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Expected assignment_expression after ','.");
             BACKTRACK_FAIL();
         }
 
@@ -1911,13 +2069,12 @@ int expression_sequence() {
             BACKTRACK_FAIL();
         }
 
-        BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "expression_sequence()");
+        return PARSE_SUCCESS;
     }
 
-    // ε (vazio)
-    BACKTRACK_END();
-    return 1;
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "expression_sequence()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -1973,28 +2130,32 @@ int argument_expression_sequence() {
 
 int assignment_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "assignment_expression()");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
-    BACKTRACK_START();
-
-    // tentativa 1: unary_expression assignment_operator assignment_expression
     BACKTRACK_START();
     if (unary_expression()) {
         if (assignment_operator()) {
             if (assignment_expression()) {
                 BACKTRACK_END();
-                return 1;
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "assignment_expression() [assignment path]");
+                return PARSE_SUCCESS;
             }
         }
     }
-    BACKTRACK_FAIL();
+    BACKTRACKING_RESTORE();
 
-    // tentativa 2: conditional_expression
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "RESTAURADO Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+
+    BACKTRACK_START();
     if (conditional_expression()) {
         BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "assignment_expression() [conditional path]");
+        return PARSE_SUCCESS;
     }
+    BACKTRACK_FAIL();  // <- Garante restauração final
 
-    BACKTRACK_FAIL();
+    // Isso nunca será alcançado
+    // return PARSE_FAIL;
 }
 
 
@@ -2005,10 +2166,18 @@ int conditional_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "conditional_expression()");
 
     BACKTRACK_START();
-    if (!logical_or_expression()) BACKTRACK_FAIL();
-    if (!conditional_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    if (!logical_or_expression()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "conditional_expression()");
+        BACKTRACK_FAIL();
+    }
+
+    if (!conditional_expression_suffix()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "conditional_expression()");
+        BACKTRACK_FAIL();
+    }
+    
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "conditional_expression()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2020,17 +2189,23 @@ int conditional_expression_suffix() {
 
     BACKTRACK_START();
     if (CC71_GlobalTokenNumber == TokenQuestionMark) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+
         if (!expression()) BACKTRACK_FAIL();
         if (CC71_GlobalTokenNumber != TokenColon) BACKTRACK_FAIL();
+
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+
         if (!conditional_expression()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "conditional_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "conditional_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2041,8 +2216,16 @@ int logical_or_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "logical_or_expression()");
 
     BACKTRACK_START();
-    if (!logical_and_expression()) BACKTRACK_FAIL();
-    if (!logical_or_expression_suffix()) BACKTRACK_FAIL();
+    if (!logical_and_expression()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "logical_or_expression()");
+        BACKTRACK_FAIL();
+    }
+
+    if (!logical_or_expression_suffix()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "logical_or_expression()");
+        BACKTRACK_FAIL();
+    }
+
     BACKTRACK_END();
     return 1;
 }
@@ -2351,8 +2534,14 @@ int multiplicative_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "multiplicative_expression()");
 
     BACKTRACK_START();
-    if (!cast_expression()) BACKTRACK_FAIL();
-    if (!multiplicative_expression_suffix()) BACKTRACK_FAIL();
+    if (!cast_expression()) {
+        BACKTRACK_FAIL();
+    }
+
+    if (!multiplicative_expression_suffix()) {
+        BACKTRACK_FAIL();
+    }
+
     BACKTRACK_END();
     return 1;
 }
@@ -2389,6 +2578,7 @@ int cast_expression() {
         BACKTRACK_END();
         return 1;
     }
+
     BACKTRACK_FAIL();
 
     if (CC71_GlobalTokenNumber == TokenOpenParentheses) {
@@ -2415,49 +2605,69 @@ int unary_expression() {
     BACKTRACK_START();
 
     if (CC71_GlobalTokenNumber == TokenIncrement) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
         if (!unary_expression()) BACKTRACK_FAIL();
+
         BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression()");
+        return PARSE_SUCCESS;
     }
 
     if (CC71_GlobalTokenNumber == TokenDecrement) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
         if (!unary_expression()) BACKTRACK_FAIL();
+
         BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression()");
+        return PARSE_SUCCESS;
     }
 
     if (unary_operator()) {
         if (!cast_expression()) BACKTRACK_FAIL();
+
         BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression()");
+        return PARSE_SUCCESS;
     }
 
     if (CC71_GlobalTokenNumber == TokenSizeof) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+
         if (unary_expression()) {
             BACKTRACK_END();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression()");
+            return PARSE_SUCCESS;
         }
+
         if (CC71_GlobalTokenNumber == TokenOpenParentheses) {
             CC71_GetToken();
             if (!type_name()) BACKTRACK_FAIL();
             if (CC71_GlobalTokenNumber != TokenCloseParentheses) BACKTRACK_FAIL();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
+
             BACKTRACK_END();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression()");
+            return PARSE_SUCCESS;
         }
+
         BACKTRACK_FAIL();
     }
 
     if (postfix_expression()) {
         BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression()");
+        return PARSE_SUCCESS;
     }
 
-    BACKTRACK_FAIL();
+    BACKTRACKING_RESTORE();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "unary_expression()");
+    return PARSE_FAIL;
 }
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2467,10 +2677,22 @@ int postfix_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "postfix_expression()");
 
     BACKTRACK_START();
-    if (!primary_expression()) BACKTRACK_FAIL();
-    if (!postfix_expression_sequence()) BACKTRACK_FAIL();
+    if (!primary_expression()) {
+        BACKTRACKING_RESTORE();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "postfix_expression()");
+        return PARSE_FAIL;
+    }
+
+    if (!postfix_expression_sequence()) {
+        BACKTRACKING_RESTORE();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "postfix_expression()");
+        return PARSE_FAIL;
+    }
+
     BACKTRACK_END();
-    return 1;
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2482,13 +2704,18 @@ int postfix_expression_sequence() {
 
     BACKTRACK_START();
     if (postfix_expression_suffix()) {
-        if (!postfix_expression_sequence()) BACKTRACK_FAIL();
+        if (!postfix_expression_sequence()) {
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "postfix_expression_sequence()");
+            BACKTRACK_FAIL();
+        }
         BACKTRACK_END();
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_sequence()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
+    
     BACKTRACK_END();
-    return 1;
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_sequence()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2555,8 +2782,8 @@ int postfix_expression_suffix() {
 
 int primary_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "primary_expression()");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
-    BACKTRACK_START();
     switch(CC71_GlobalTokenNumber) {
         case TokenIdentifier:
         case TokenIntConst:
@@ -2564,19 +2791,29 @@ int primary_expression() {
         case TokenString:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            BACKTRACK_END();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "primary_expression()");
+            return PARSE_SUCCESS;
+
         case TokenOpenParentheses:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            if (!expression()) BACKTRACK_FAIL();
-            if (CC71_GlobalTokenNumber != TokenCloseParentheses) BACKTRACK_FAIL();
+            if (!expression()) {
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "primary_expression()");
+                return PARSE_FAIL;
+            }
+            if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
+                CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "primary_expression()");
+                return PARSE_FAIL;
+            }
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            BACKTRACK_END();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "primary_expression()");
+            return PARSE_SUCCESS;
+
         default:
-            BACKTRACK_FAIL();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "primary_expression()");
+            return PARSE_FAIL;
     }
 }
 
@@ -2584,27 +2821,30 @@ int primary_expression() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int type_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "type_specifier()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
-    BACKTRACK_START();
     if (primitive_type_specifier()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the type_specifier() function.");
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "type_specifier()");
+        return PARSE_SUCCESS;
     }
 
-    if (composite_type_specifier()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the type_specifier() function.");
-        return 1;
-    }
-    BACKTRACK_FAIL();
+    /*if (composite_type_specifier()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "type_specifier()");
+        return PARSE_SUCCESS;
+    }*/
+    
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "type_specifier()");
+    return PARSE_FAIL;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int primitive_type_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "primitive_type_specifier()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
@@ -2621,9 +2861,11 @@ int primitive_type_specifier() {
         case TokenComplex:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "primitive_type_specifier()");
+            return PARSE_SUCCESS;
         default:
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the primitive_type_specifier() function. No valid primitive type specifier found.");
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "primitive_type_specifier()");
+            return PARSE_FAIL;
     }
 }
 
@@ -2634,24 +2876,26 @@ int primitive_type_specifier() {
 int composite_type_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "composite_type_specifier()");
 
-    BACKTRACK_START();
     if (struct_or_union_specifier()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the composite_type_specifier() function.");
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "composite_type_specifier()");
+        return PARSE_SUCCESS;
     }
+
     if (enumerator_specifier()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the composite_type_specifier() function.");
-        return 1;
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "composite_type_specifier()");
+        return PARSE_SUCCESS;
     }
-    BACKTRACK_FAIL();
+
+    return PARSE_FAIL;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int storage_specifier() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the storage_specifier() function.");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "storage_specifier()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
     switch (CC71_GlobalTokenNumber) {
@@ -2662,10 +2906,11 @@ int storage_specifier() {
         case TokenTypedef:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "storage_specifier()");
+            return PARSE_SUCCESS;
         default:
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the storage_specifier() function. No valid storage specifier found.");
-            return 0;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "storage_specifier()");
+            return PARSE_FAIL;
     }
 }
 
@@ -2674,9 +2919,8 @@ int storage_specifier() {
 
 
 int type_qualifier() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the type_qualifier() function.");
-
-    BACKTRACK_START();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "type_qualifier()");
+    
     switch (CC71_GlobalTokenNumber) {
         case TokenConst:
         case TokenVolatile:
@@ -2684,10 +2928,11 @@ int type_qualifier() {
         case TokenAtomic:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            return 1;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "type_qualifier()");
+            return PARSE_SUCCESS;
         default:
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Exiting the type_qualifier() function. No valid type qualifier found.");
-            return 0;
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "type_qualifier()");
+            return PARSE_FAIL;
     }
 }
 
@@ -2696,6 +2941,8 @@ int type_qualifier() {
 
 
 int type_qualifier_list() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "type_qualifier_list()");
+
     BACKTRACK_START();
     if (!type_qualifier()) BACKTRACK_FAIL();
     if (!type_qualifier_list_sequence()) BACKTRACK_FAIL();
@@ -2708,6 +2955,8 @@ int type_qualifier_list() {
 
 
 int type_qualifier_list_sequence() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "type_qualifier_list_sequence()");
+
     BACKTRACK_START();
     if (type_qualifier()) {
         if (!type_qualifier_list_sequence()) BACKTRACK_FAIL();
@@ -2724,6 +2973,8 @@ int type_qualifier_list_sequence() {
 
 
 int specifier_qualifier_list() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "specifier_qualifier_list()");
+    
     BACKTRACK_START();
     if (!specifier_qualifier()) BACKTRACK_FAIL();
     if (!specifier_qualifier_list_sequence()) BACKTRACK_FAIL();
@@ -2736,6 +2987,8 @@ int specifier_qualifier_list() {
 
 
 int specifier_qualifier_list_sequence() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "specifier_qualifier_list_sequence()");
+
     BACKTRACK_START();
     if (specifier_qualifier()) {
         if (!specifier_qualifier_list_sequence()) BACKTRACK_FAIL();
@@ -2752,6 +3005,8 @@ int specifier_qualifier_list_sequence() {
 
 
 int specifier_qualifier() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "specifier_qualifier()");
+
     BACKTRACK_START();
     if (type_specifier()) {
         BACKTRACK_END();
@@ -2807,6 +3062,7 @@ int type_name_suffix() {
 
 int unary_operator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "unary_operator()");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     switch (CC71_GlobalTokenNumber) {
         case TokenBitwiseAnd_AddressOf:
@@ -2831,6 +3087,7 @@ int unary_operator() {
 
 int assignment_operator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "assignment_operator()");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     switch (CC71_GlobalTokenNumber) {
         case TokenAssign:
