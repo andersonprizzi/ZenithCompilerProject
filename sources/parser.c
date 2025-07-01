@@ -439,7 +439,6 @@ int direct_declarator_base() {
     CC71_BacktrackingStart();
 
     if (CC71_GlobalTokenNumber == TokenIdentifier) {
-        printf("PASSOU AQUI 1\n");
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
         CC71_BacktrackingEnd();
@@ -520,6 +519,7 @@ int direct_declarator_suffix() {
             CC71_GetToken();
 
             if (CC71_GlobalTokenNumber == TokenCloseBracket) {
+                printf("PASSOU AQUI 3\n");
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
                 CC71_GetToken();
                 CC71_BacktrackingEnd();
@@ -2443,48 +2443,80 @@ int logical_and_expression_suffix() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int inclusive_or_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "inclusive_or_expression()");
+    
+    if (!exclusive_or_expression()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "inclusive_or_expression()");
+        return PARSE_FAIL;
+    }
 
-    BACKTRACK_START();
-    if (!exclusive_or_expression()) BACKTRACK_FAIL();
-    if (!inclusive_or_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    if (!inclusive_or_expression_suffix()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "inclusive_or_expression()");
+        return PARSE_FAIL;
+    }
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "inclusive_or_expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int inclusive_or_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "inclusive_or_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenBitwiseOr) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!exclusive_or_expression()) BACKTRACK_FAIL();
-        if (!inclusive_or_expression_suffix()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!exclusive_or_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "inclusive_or_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        if (!inclusive_or_expression_suffix()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "inclusive_or_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "inclusive_or_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "inclusive_or_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int exclusive_or_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "exclusive_or_expression()");
 
-    BACKTRACK_START();
-    if (!and_expression()) BACKTRACK_FAIL();
-    if (!exclusive_or_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    if (!and_expression()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "exclusive_or_expression()");
+        return PARSE_FAIL;
+    }
+    
+    if (!exclusive_or_expression_suffix()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "exclusive_or_expression()");
+        return PARSE_FAIL;
+    }
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "exclusive_or_expression()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2494,51 +2526,84 @@ int exclusive_or_expression() {
 int exclusive_or_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "exclusive_or_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenBitwiseXor) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!and_expression()) BACKTRACK_FAIL();
-        if (!exclusive_or_expression_suffix()) BACKTRACK_FAIL();
+        
+        if (!and_expression()) {
+            BACKTRACK_FAIL();
+        }
+
+        if (!exclusive_or_expression_suffix()) {
+            BACKTRACK_FAIL();
+        }
+
         BACKTRACK_END();
-        return 1;
+        return PARSE_SUCCESS;
     }
-    // epsilon
+    
     BACKTRACK_END();
-    return 1;
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int and_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "and_expression()");
 
-    BACKTRACK_START();
-    if (!equality_expression()) BACKTRACK_FAIL();
-    if (!and_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    if (!equality_expression()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "and_expression()");
+        return PARSE_FAIL;
+    }
+
+    if (!and_expression_suffix()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "and_expression()");
+        return PARSE_FAIL;
+    }
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "and_expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int and_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "and_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenBitwiseAnd_AddressOf) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!equality_expression()) BACKTRACK_FAIL();
-        if (!and_expression_suffix()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!equality_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "and_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        if (!and_expression_suffix()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "and_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "and_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "and_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2548,45 +2613,86 @@ int and_expression_suffix() {
 int equality_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "equality_expression()");
 
-    BACKTRACK_START();
-    if (!relational_expression()) BACKTRACK_FAIL();
-    if (!equality_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    CC71_BacktrackingStart();
+
+    if (!relational_expression()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "equality_expression()");
+        return PARSE_FAIL;
+    }
+
+    if (!equality_expression_suffix()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "equality_expression()");
+        return PARSE_FAIL;
+    }
+
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "equality_expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int equality_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "equality_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenEqual || CC71_GlobalTokenNumber == TokenNotEqual) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!relational_expression()) BACKTRACK_FAIL();
-        if (!equality_expression_suffix()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!relational_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "equality_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        if (!equality_expression_suffix()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "equality_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "equality_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "equality_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int relational_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "relational_expression()");
 
-    BACKTRACK_START();
-    if (!shift_expression()) BACKTRACK_FAIL();
-    if (!relational_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    CC71_BacktrackingStart();
+
+    if (!shift_expression()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "relational_expression()");
+        return PARSE_FAIL;
+    }
+
+    if (!relational_expression_suffix()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "relational_expression()");
+        return PARSE_FAIL;
+    }
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "relational_expression()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2602,6 +2708,7 @@ int relational_expression_suffix() {
         case TokenGreaterThan:
         case TokenLessEqual:
         case TokenGreaterEqual:
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
             if (!shift_expression()) BACKTRACK_FAIL();
             if (!relational_expression_suffix()) BACKTRACK_FAIL();
@@ -2617,68 +2724,126 @@ int relational_expression_suffix() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int shift_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "shift_expression()");
 
-    BACKTRACK_START();
-    if (!additive_expression()) BACKTRACK_FAIL();
-    if (!shift_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    CC71_BacktrackingStart();
+
+    if (!additive_expression()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "shift_expression()");
+        return PARSE_FAIL;
+    }
+
+    if (!shift_expression_suffix()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "shift_expression()");
+        return PARSE_FAIL;
+    }
+
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "shift_expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int shift_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "shift_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenLeftShift || CC71_GlobalTokenNumber == TokenRightShift) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!additive_expression()) BACKTRACK_FAIL();
-        if (!shift_expression_suffix()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!additive_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "shift_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        if (!shift_expression_suffix()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "shift_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "shift_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "shift_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int additive_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "additive_expression()");
 
-    BACKTRACK_START();
-    if (!multiplicative_expression()) BACKTRACK_FAIL();
-    if (!additive_expression_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    CC71_BacktrackingStart();
+
+    if (!multiplicative_expression()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "additive_expression()");
+        return PARSE_FAIL;
+    }
+
+    if (!additive_expression_suffix()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "additive_expression()");
+        return PARSE_FAIL;
+    }
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "additive_expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+//
 int additive_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "additive_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenPlus || CC71_GlobalTokenNumber == TokenMinus) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!multiplicative_expression()) BACKTRACK_FAIL();
-        if (!additive_expression_suffix()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!multiplicative_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "additive_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        if (!additive_expression_suffix()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "additive_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "additive_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "additive_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -2688,37 +2853,59 @@ int additive_expression_suffix() {
 int multiplicative_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "multiplicative_expression()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+    
     if (!cast_expression()) {
-        BACKTRACK_FAIL();
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "multiplicative_expression()");
+        return PARSE_FAIL;
     }
 
     if (!multiplicative_expression_suffix()) {
-        BACKTRACK_FAIL();
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "multiplicative_expression()");
+        return PARSE_FAIL;
     }
 
-    BACKTRACK_END();
-    return 1;
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "multiplicative_expression()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int multiplicative_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "multiplicative_expression_suffix()");
 
-    BACKTRACK_START();
+    CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenAsterisk || CC71_GlobalTokenNumber == TokenDivision || CC71_GlobalTokenNumber == TokenMod) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!cast_expression()) BACKTRACK_FAIL();
-        if (!multiplicative_expression_suffix()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!cast_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "multiplicative_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        if (!multiplicative_expression_suffix()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "multiplicative_expression_suffix()");
+            return PARSE_FAIL;
+        }
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "multiplicative_expression_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "multiplicative_expression_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
