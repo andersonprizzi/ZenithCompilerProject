@@ -309,6 +309,7 @@ struct_declarator_suffix
 
 enumerator_specifier
     : TokenEnum enumerator_body
+    | TokenEnum TokenIdentifier
     ;
 
 

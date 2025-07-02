@@ -20,6 +20,7 @@
     X(TokenIdentifier)                       \
     X(TokenIntConst)                         \
     X(TokenFloatConst)                       \
+    X(TokenCharConst)                        \
     X(TokenString)                           \
                                              \
     /*/// PRIMITIVE TYPES /////////////////*/\
@@ -149,7 +150,7 @@
 typedef struct keyword{
     char tokenWord[20];
     int tokenNumber;
-} Keyword;
+} CC71_KeywordType;
 
 
 typedef struct contexto {
@@ -157,7 +158,7 @@ typedef struct contexto {
     int tkant;
     char cant;
     char lexant[20];
-} tcontexto;
+} CC71_ContextType;
 
 
 #define X(name) name,
@@ -183,7 +184,7 @@ extern int CC71_GlobalCurrentColumn;
 extern int columnAux;
 extern char currentChar;
 
-extern tcontexto pilhacon[1000];
+extern CC71_ContextType pilhacon[1000];
 extern int topcontexto;
 
 extern FILE *CC71_GlobalInputFile;
@@ -191,7 +192,7 @@ extern FILE *CC71_GlobalOutputFile;
 
 extern const int CC71_DebugMode;
 extern const char* tokens[];
-extern Keyword keywordList[];
+extern CC71_KeywordType keywordList[];
 
 /////////////////////////////////////////////////////////////////////////////
 

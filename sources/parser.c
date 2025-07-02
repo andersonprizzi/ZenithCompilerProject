@@ -1582,17 +1582,34 @@ int struct_declarator() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int enumerator_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_specifier()");
+
+    CC71_BacktrackingStart();
 
     if (CC71_GlobalTokenNumber == TokenEnum) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!enumerator_body()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+        
+        if (enumerator_body()) {
+            CC71_BacktrackingEnd();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_specifier()");
+            return PARSE_SUCCESS;
+        }
+
+        if (CC71_GlobalTokenNumber == TokenIdentifier) {
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+            CC71_GetToken();
+
+            CC71_BacktrackingEnd();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_specifier()");
+            return PARSE_SUCCESS;
+        }
     }
 
+    CC71_BacktrackingRestore();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_specifier()");
     return PARSE_FAIL;
 }
 
@@ -1600,123 +1617,191 @@ int enumerator_specifier() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int enumerator_body() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_body()");
 
     CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenOpenBrace) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!enumerator_list()) BACKTRACK_FAIL();
+
+        if (!enumerator_list()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_body()");
+            return PARSE_FAIL;
+        }
+        
         if (CC71_GlobalTokenNumber != TokenCloseBrace) {
             CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-            BACKTRACK_FAIL();
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_body()");
+            return PARSE_FAIL;
         }
 
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        BACKTRACK_END();
-        return 1;
+
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_body()");
+        return PARSE_SUCCESS;
     }
 
     if (CC71_GlobalTokenNumber == TokenIdentifier) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+
         if (CC71_GlobalTokenNumber == TokenOpenBrace) {
             CC71_GetToken();
-            if (!enumerator_list()) BACKTRACK_FAIL();
+            if (!enumerator_list()) {
+                CC71_BacktrackingRestore();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_body()");
+                return PARSE_FAIL;
+            }
 
             if (CC71_GlobalTokenNumber != TokenCloseBrace) {
                 CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-                BACKTRACK_FAIL();
+                CC71_BacktrackingRestore();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_body()");
+                return PARSE_FAIL;
             }
 
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();
-            BACKTRACK_END();
-            return 1;
+
+            CC71_BacktrackingEnd();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_body()");
+            return PARSE_SUCCESS;
         }
-        BACKTRACK_FAIL();
+
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_body()");
+        return PARSE_FAIL;
     }
-    BACKTRACK_FAIL();
+
+    CC71_BacktrackingRestore();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_body()");
+    return PARSE_FAIL;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int enumerator_list() {
-    CC71_BacktrackingStart();
-    if (!enumerator()) BACKTRACK_FAIL();
-    if (!enumerator_list_sequence()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_list()");
+
+    if (!enumerator()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_list()");
+        return PARSE_FAIL;
+    }
+    
+    if (!enumerator_list_sequence()) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_list()");
+        return PARSE_FAIL;
+    }
+    
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_list()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int enumerator_list_sequence() {
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_list_sequence()");
+
     CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenComma) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
 
         if (!enumerator()) {
-            BACKTRACK_FAIL();
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_list_sequence()");
+            return PARSE_FAIL;
         }
 
         if (!enumerator_list_sequence()) {
-            BACKTRACK_FAIL();
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_list_sequence()");
+            return PARSE_FAIL;
         }
 
-        BACKTRACK_END();
-        return 1;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_list_sequence()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_list_sequence()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int enumerator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator()");
 
     CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber != TokenIdentifier) {
         CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-        BACKTRACK_FAIL();
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator()");
+        return PARSE_FAIL;
     }
 
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
     CC71_GetToken();
-    if (!enumerator_suffix()) BACKTRACK_FAIL();
-    BACKTRACK_END();
-    return 1;
+
+    if (!enumerator_suffix()) {
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator()");
+        return PARSE_FAIL;
+    }
+    
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator()");
+    return PARSE_SUCCESS;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int enumerator_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "enumerator_suffix()");
 
     CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenAssign) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        if (!constant_expression()) BACKTRACK_FAIL();
-        BACKTRACK_END();
-        return 1;
+
+        if (!constant_expression()) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "enumerator_suffix()");
+            return PARSE_FAIL;
+        }
+        
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_suffix()");
+        return PARSE_SUCCESS;
     }
-    // epsilon
-    BACKTRACK_END();
-    return 1;
+
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_suffix()");
+    return PARSE_SUCCESS;
 }
 
 
