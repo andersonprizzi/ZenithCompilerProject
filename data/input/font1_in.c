@@ -27,6 +27,14 @@ void print_point(struct Point p) {
 }
 
 
+void fa(int a, char b);
+void fb(int a, char b, ...);
+void fc(const char *fmt, ...);
+
+
+int square(int x) { return x * x; }
+
+
 int main() {
     int a;
     int b, c;
@@ -38,7 +46,8 @@ int main() {
     int i[3] = {1,2,3};
     int j = 5, k = 10;
     float l = 3.14;
-    //char m = 'Z';
+    char m = 'Z';
+    const int n;
     struct Point my_struct = {1, 2};
     union Data my_union;
     enum Color my_color = GREEN;
@@ -49,8 +58,12 @@ int main() {
     
     my_union.i = 42;
 
-    int (*n[3])(int);
-    n[2](2);
+    int (*function_vector[3])(int);
+    function_vector[2](2);
+
+    int (*func_ptr)(int);
+    func_ptr = square;
+    int result = func_ptr(5);
 
     if (a < b) {
         printf("a is less than b\n");
@@ -94,6 +107,13 @@ int main() {
 
     print_point(my_struct);
     printf("Sum = %d\n", sum(3, 4));
+
+    int max = (a > b) ? a : b;
+    a += 2;
+    a -= 2;
+    a *= 3;
+    a /= 3;
+    a %= 3;
     
     return 0;
 }

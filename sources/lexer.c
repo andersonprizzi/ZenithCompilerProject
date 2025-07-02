@@ -105,6 +105,15 @@ void CC71_GetToken() {
                         break;
                     }
 
+                    // Recognizes the division assignment operator (-=).
+                    else if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenDivAssign;
+                        return;
+                    }
+
                     // Recognizes and skips multi-line comments.
                     else if (currentChar == '*') {
                         posl--;
@@ -173,6 +182,60 @@ void CC71_GetToken() {
 
                     lex[posl] = '\0';
                     CC71_GlobalTokenNumber = isFloat ? TokenFloatConst : TokenIntConst;
+                    return;
+                }
+
+                // Recognizes character constants.
+                if (currentChar == '\'') {
+                    CC71_GetNextChar();
+                    int charValue = 0;
+
+                    if (currentChar == '\\') {
+                        CC71_GetNextChar();
+                        
+                        switch (currentChar) {
+                            case 'n': charValue = '\n'; break;
+                            case 't': charValue = '\t'; break;
+                            case 'r': charValue = '\r'; break;
+                            case '0': charValue = '\0'; break;
+                            case '\\': charValue = '\\'; break;
+                            case '\'': charValue = '\''; break;
+                            case '\"': charValue = '\"'; break;
+                            case 'x': {
+                                char hexbuf[5] = {0};
+                                int i = 0;
+                                CC71_GetNextChar();
+                                while (isxdigit(currentChar) && i < 4) {
+                                    hexbuf[i++] = currentChar;
+                                    CC71_GetNextChar();
+                                }
+                                charValue = (char)strtol(hexbuf, NULL, 16);
+                                break;
+                            }
+
+                            default:
+                                CC71_ReportError(CC71_ERR_LEX_INVALID_CHAR, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Escape inválido: \\%c", currentChar);
+                                CC71_GlobalTokenNumber = -1;
+                                return;
+                        }
+
+                    } else {
+                        charValue = currentChar;
+                        CC71_GetNextChar();
+                    }
+
+                    if (currentChar != '\'') {
+                        CC71_ReportError(CC71_ERR_LEX_INVALID_CHAR, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Esperado fechamento de caractere: '");
+                        CC71_GlobalTokenNumber = -1;
+                        return;
+                    }
+
+                    lex[0] = charValue;
+                    lex[1] = '\0';
+
+                    CC71_GetNextChar();
+
+                    CC71_GlobalTokenNumber = TokenCharConst;
                     return;
                 }
 
@@ -282,6 +345,15 @@ void CC71_GetToken() {
                         return;
                     }
 
+                    // Recognizes the subtraction assignment operator (-=).
+                    else if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenMinusAssign;
+                        return;
+                    }
+
                     // Recognizes the subtraction operator (-).
                     else {
                        lex[posl] = '\0';
@@ -290,12 +362,21 @@ void CC71_GetToken() {
                     }
                 }
 
-                // Recognizes the multiplication operator (*).
+                // Recognizes the multiplication operator (*) and multiplication assignment operator (*=).
                 if (currentChar == '*') {
-                    lex[posl]='\0';
                     CC71_GetNextChar();
-                    CC71_GlobalTokenNumber = TokenAsterisk;
-                    return;
+
+                    if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenMulAssign;
+                        return;
+                    } else {
+                        lex[posl] = '\0';
+                        CC71_GlobalTokenNumber = TokenAsterisk;
+                        return;
+                    }
                 }
 
                 // Recognizes the modulo operator (%) and compound token %> (close brace).
@@ -311,6 +392,15 @@ void CC71_GetToken() {
                         return;
                     }
 
+                    // Recognizes the modulo assignment operator (%=).
+                    else if (currentChar == '=') {
+                        lex[posl++] = '=';
+                        lex[posl] = '\0';
+                        CC71_GetNextChar();
+                        CC71_GlobalTokenNumber = TokenModAssign;
+                        return;
+                    }
+
                     // Recognizes the modulo operator (%).
                     else {
                         lex[posl]='\0';
@@ -319,10 +409,28 @@ void CC71_GetToken() {
                     }
                 }
 
-                // Recognizes the structure member access operator (dot '.').
+                // Recognizes the structure member access operator (dot '.') and the ellipsis operator (...).
                 if (currentChar == '.') {
-                    lex[posl]='\0';
                     CC71_GetNextChar();
+
+                    if (currentChar == '.') {
+                        CC71_GetNextChar();
+
+                        if (currentChar == '.') {
+                            lex[posl++] = '.';
+                            lex[posl++] = '.';
+                            lex[posl] = '\0';
+                            CC71_GetNextChar();
+                            CC71_GlobalTokenNumber = TokenEllipsis;
+                            return;
+                        } else {
+                            CC71_ReportError(CC71_ERR_LEX_INVALID_CHAR, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Unexpected character '%c' after '..' (expected another '.').", currentChar);
+                            CC71_GlobalTokenNumber = -1;
+                            return;
+                        }
+                    }
+                    
+                    lex[posl] = '\0';
                     CC71_GlobalTokenNumber = TokenDot;
                     return;
                 }

@@ -871,54 +871,30 @@ int parameter_type_list() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_type_list()");
 
     CC71_BacktrackingStart();
-
-    if (!parameter_list()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_type_list()");
-        CC71_BacktrackingRestore();
-        return PARSE_FAIL;
-    }
-
-    if (!parameter_type_sequence()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_type_list()");
-        CC71_BacktrackingRestore();
-        return PARSE_FAIL;
-    }
-
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_type_list()");
-    CC71_BacktrackingEnd();
-    return PARSE_SUCCESS;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-// OK
-int parameter_type_sequence() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_type_sequence()");
-
-    CC71_BacktrackingStart();
-
-    if (CC71_GlobalTokenNumber == TokenComma) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
-        CC71_GetToken();
-
-        if (CC71_GlobalTokenNumber == TokenEllipsis) {
+    if (parameter_list()) {
+        if (CC71_GlobalTokenNumber == TokenComma) {
             CC71_GetToken();
-            CC71_BacktrackingEnd();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_type_sequence()");
-            return PARSE_SUCCESS;
-        } else {
-            CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
-            CC71_BacktrackingRestore();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_type_sequence()");
-            return PARSE_FAIL;
+            if (CC71_GlobalTokenNumber == TokenEllipsis) {
+                CC71_GetToken();
+                CC71_BacktrackingEnd();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_type_list() with , ...");
+                return PARSE_SUCCESS;
+            }
         }
     }
-    
-    CC71_BacktrackingEnd();
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_type_sequence()");
-    return PARSE_SUCCESS;
+
+    CC71_BacktrackingRestore();
+    CC71_BacktrackingStart();
+
+    if (parameter_list()) {
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_type_list() without , ...");
+        return PARSE_SUCCESS;
+    }
+
+    CC71_BacktrackingRestore();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "parameter_type_list() failed");
+    return PARSE_FAIL;
 }
 
 
@@ -959,8 +935,13 @@ int parameter_sequence() {
     CC71_BacktrackingStart();
 
     if (CC71_GlobalTokenNumber == TokenComma) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+        
+        if (CC71_GlobalTokenNumber == TokenEllipsis) {
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_sequence() ends before ellipsis");
+            return PARSE_SUCCESS; // ε
+        }
 
         if (!parameter_declaration()) {
             CC71_BacktrackingRestore();
@@ -980,7 +961,7 @@ int parameter_sequence() {
     }
 
     CC71_BacktrackingEnd();
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_sequence()");
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "parameter_sequence() is empty");
     return PARSE_SUCCESS;
 }
 
@@ -1591,7 +1572,7 @@ int enumerator_specifier() {
     if (CC71_GlobalTokenNumber == TokenEnum) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        
+
         if (enumerator_body()) {
             CC71_BacktrackingEnd();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "enumerator_specifier()");
@@ -3715,6 +3696,7 @@ int primary_expression() {
         case TokenIdentifier:
         case TokenIntConst:
         case TokenFloatConst:
+        case TokenCharConst:
         case TokenString:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             CC71_GetToken();

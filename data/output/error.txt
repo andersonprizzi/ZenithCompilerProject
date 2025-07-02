@@ -457,3 +457,1108 @@
 [Syntax Error][132:12] Expected ')'.
 [Syntax Error][135:11] Expected assignment_expression in expression.
 [Syntax Error][138:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:11] Unexpected token found.
+[Syntax Error][64:8] Expected ')'.
+[Syntax Error][66:8] Expected ')'.
+[Syntax Error][68:8] Expected ')'.
+[Syntax Error][71:14] Expected ')'.
+[Syntax Error][75:7] Expected ')'.
+[Syntax Error][78:7] Expected assignment_expression in expression.
+[Syntax Error][79:16] Expected ')'.
+[Syntax Error][81:6] Expected assignment_expression in expression.
+[Syntax Error][82:16] Expected ')'.
+[Syntax Error][85:0] Expected assignment_expression in expression.
+[Syntax Error][88:8] Expected assignment_expression in expression.
+[Syntax Error][89:16] Expected ')'.
+[Syntax Error][91:11] Expected ')'.
+[Syntax Error][93:0] Expected assignment_expression in expression.
+[Syntax Error][94:10] Expected assignment_expression in expression.
+[Syntax Error][95:12] Expected ')'.
+[Syntax Error][97:11] Expected assignment_expression in expression.
+[Syntax Error][97:29] Expected assignment_expression in expression.
+[Syntax Error][99:0] Expected assignment_expression in expression.
+[Syntax Error][100:7] Expected assignment_expression in expression.
+[Syntax Error][101:14] Expected assignment_expression in expression.
+[Syntax Error][102:6] Expected assignment_expression in expression.
+[Syntax Error][105:11] Expected assignment_expression in expression.
+[Syntax Error][107:20] Expected ')'.
+[Syntax Error][109:18] Expected assignment_expression in expression.
+[Syntax Error][111:20] Expected ')'.
+[Syntax Error][113:18] Expected assignment_expression in expression.
+[Syntax Error][115:20] Expected ')'.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][121:10] Expected ')'.
+[Syntax Error][123:10] Expected ')'.
+[Syntax Error][125:10] Expected ')'.
+[Syntax Error][127:10] Expected ')'.
+[Syntax Error][130:17] Expected ')'.
+[Syntax Error][132:12] Expected ')'.
+[Syntax Error][135:11] Expected assignment_expression in expression.
+[Syntax Error][138:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:11] Unexpected token found.
+[Syntax Error][65:8] Expected ')'.
+[Syntax Error][67:8] Expected ')'.
+[Syntax Error][69:8] Expected ')'.
+[Syntax Error][72:14] Expected ')'.
+[Syntax Error][76:21] Expected ')'.
+[Syntax Error][79:7] Expected assignment_expression in expression.
+[Syntax Error][80:16] Expected ')'.
+[Syntax Error][82:6] Expected assignment_expression in expression.
+[Syntax Error][83:16] Expected ')'.
+[Syntax Error][86:0] Expected assignment_expression in expression.
+[Syntax Error][89:8] Expected assignment_expression in expression.
+[Syntax Error][90:16] Expected ')'.
+[Syntax Error][92:11] Expected ')'.
+[Syntax Error][94:0] Expected assignment_expression in expression.
+[Syntax Error][95:10] Expected assignment_expression in expression.
+[Syntax Error][96:12] Expected ')'.
+[Syntax Error][98:11] Expected assignment_expression in expression.
+[Syntax Error][98:29] Expected assignment_expression in expression.
+[Syntax Error][100:0] Expected assignment_expression in expression.
+[Syntax Error][101:7] Expected assignment_expression in expression.
+[Syntax Error][102:14] Expected assignment_expression in expression.
+[Syntax Error][103:6] Expected assignment_expression in expression.
+[Syntax Error][106:11] Expected assignment_expression in expression.
+[Syntax Error][108:20] Expected ')'.
+[Syntax Error][110:18] Expected assignment_expression in expression.
+[Syntax Error][112:20] Expected ')'.
+[Syntax Error][114:18] Expected assignment_expression in expression.
+[Syntax Error][116:20] Expected ')'.
+[Syntax Error][119:0] Expected assignment_expression in expression.
+[Syntax Error][122:10] Expected ')'.
+[Syntax Error][124:10] Expected ')'.
+[Syntax Error][126:10] Expected ')'.
+[Syntax Error][128:10] Expected ')'.
+[Syntax Error][131:17] Expected ')'.
+[Syntax Error][133:12] Expected ')'.
+[Syntax Error][136:11] Expected assignment_expression in expression.
+[Syntax Error][139:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:11] Unexpected token found.
+[Syntax Error][66:8] Expected ')'.
+[Syntax Error][68:8] Expected ')'.
+[Syntax Error][70:8] Expected ')'.
+[Syntax Error][73:14] Expected ')'.
+[Syntax Error][77:21] Expected ')'.
+[Syntax Error][80:7] Expected assignment_expression in expression.
+[Syntax Error][81:16] Expected ')'.
+[Syntax Error][83:6] Expected assignment_expression in expression.
+[Syntax Error][84:16] Expected ')'.
+[Syntax Error][87:0] Expected assignment_expression in expression.
+[Syntax Error][90:8] Expected assignment_expression in expression.
+[Syntax Error][91:16] Expected ')'.
+[Syntax Error][93:11] Expected ')'.
+[Syntax Error][95:0] Expected assignment_expression in expression.
+[Syntax Error][96:10] Expected assignment_expression in expression.
+[Syntax Error][97:12] Expected ')'.
+[Syntax Error][99:11] Expected assignment_expression in expression.
+[Syntax Error][99:29] Expected assignment_expression in expression.
+[Syntax Error][101:0] Expected assignment_expression in expression.
+[Syntax Error][102:7] Expected assignment_expression in expression.
+[Syntax Error][103:14] Expected assignment_expression in expression.
+[Syntax Error][104:6] Expected assignment_expression in expression.
+[Syntax Error][107:11] Expected assignment_expression in expression.
+[Syntax Error][109:20] Expected ')'.
+[Syntax Error][111:18] Expected assignment_expression in expression.
+[Syntax Error][113:20] Expected ')'.
+[Syntax Error][115:18] Expected assignment_expression in expression.
+[Syntax Error][117:20] Expected ')'.
+[Syntax Error][120:0] Expected assignment_expression in expression.
+[Syntax Error][123:10] Expected ')'.
+[Syntax Error][125:10] Expected ')'.
+[Syntax Error][127:10] Expected ')'.
+[Syntax Error][129:10] Expected ')'.
+[Syntax Error][132:17] Expected ')'.
+[Syntax Error][134:12] Expected ')'.
+[Syntax Error][137:11] Expected assignment_expression in expression.
+[Syntax Error][140:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][48:11] Unexpected token found.
+[Syntax Error][70:8] Expected ')'.
+[Syntax Error][72:8] Expected ')'.
+[Syntax Error][74:8] Expected ')'.
+[Syntax Error][77:14] Expected ')'.
+[Syntax Error][81:21] Expected ')'.
+[Syntax Error][84:7] Expected assignment_expression in expression.
+[Syntax Error][85:16] Expected ')'.
+[Syntax Error][87:6] Expected assignment_expression in expression.
+[Syntax Error][88:16] Expected ')'.
+[Syntax Error][91:0] Expected assignment_expression in expression.
+[Syntax Error][94:8] Expected assignment_expression in expression.
+[Syntax Error][95:16] Expected ')'.
+[Syntax Error][97:11] Expected ')'.
+[Syntax Error][99:0] Expected assignment_expression in expression.
+[Syntax Error][100:10] Expected assignment_expression in expression.
+[Syntax Error][101:12] Expected ')'.
+[Syntax Error][103:11] Expected assignment_expression in expression.
+[Syntax Error][103:29] Expected assignment_expression in expression.
+[Syntax Error][105:0] Expected assignment_expression in expression.
+[Syntax Error][106:7] Expected assignment_expression in expression.
+[Syntax Error][107:14] Expected assignment_expression in expression.
+[Syntax Error][108:6] Expected assignment_expression in expression.
+[Syntax Error][111:11] Expected assignment_expression in expression.
+[Syntax Error][113:20] Expected ')'.
+[Syntax Error][115:18] Expected assignment_expression in expression.
+[Syntax Error][117:20] Expected ')'.
+[Syntax Error][119:18] Expected assignment_expression in expression.
+[Syntax Error][121:20] Expected ')'.
+[Syntax Error][124:0] Expected assignment_expression in expression.
+[Syntax Error][127:10] Expected ')'.
+[Syntax Error][129:10] Expected ')'.
+[Syntax Error][131:10] Expected ')'.
+[Syntax Error][133:10] Expected ')'.
+[Syntax Error][136:17] Expected ')'.
+[Syntax Error][138:12] Expected ')'.
+[Syntax Error][141:11] Expected assignment_expression in expression.
+[Syntax Error][144:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][48:11] Unexpected token found.
+[Syntax Error][70:8] Expected ')'.
+[Syntax Error][72:8] Expected ')'.
+[Syntax Error][74:8] Expected ')'.
+[Syntax Error][77:14] Expected ')'.
+[Syntax Error][81:21] Expected ')'.
+[Syntax Error][84:7] Expected assignment_expression in expression.
+[Syntax Error][85:16] Expected ')'.
+[Syntax Error][87:6] Expected assignment_expression in expression.
+[Syntax Error][88:16] Expected ')'.
+[Syntax Error][91:0] Expected assignment_expression in expression.
+[Syntax Error][94:8] Expected assignment_expression in expression.
+[Syntax Error][95:16] Expected ')'.
+[Syntax Error][97:11] Expected ')'.
+[Syntax Error][99:0] Expected assignment_expression in expression.
+[Syntax Error][100:10] Expected assignment_expression in expression.
+[Syntax Error][101:12] Expected ')'.
+[Syntax Error][103:11] Expected assignment_expression in expression.
+[Syntax Error][103:29] Expected assignment_expression in expression.
+[Syntax Error][105:0] Expected assignment_expression in expression.
+[Syntax Error][106:7] Expected assignment_expression in expression.
+[Syntax Error][107:14] Expected assignment_expression in expression.
+[Syntax Error][108:6] Expected assignment_expression in expression.
+[Syntax Error][111:11] Expected assignment_expression in expression.
+[Syntax Error][113:20] Expected ')'.
+[Syntax Error][115:18] Expected assignment_expression in expression.
+[Syntax Error][117:20] Expected ')'.
+[Syntax Error][119:18] Expected assignment_expression in expression.
+[Syntax Error][121:20] Expected ')'.
+[Syntax Error][124:0] Expected assignment_expression in expression.
+[Syntax Error][127:10] Expected ')'.
+[Syntax Error][129:10] Expected ')'.
+[Syntax Error][131:10] Expected ')'.
+[Syntax Error][133:10] Expected ')'.
+[Syntax Error][136:17] Expected ')'.
+[Syntax Error][138:12] Expected ')'.
+[Syntax Error][141:11] Expected assignment_expression in expression.
+[Syntax Error][144:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:36] Unexpected token found.
+[Syntax Error][44:36] Expected compound statement in function definition.
+[Syntax Error][44:67] Unexpected token found.
+[Syntax Error][44:67] Missing semicolon.
+[Syntax Error][44:67] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][44:11] Unexpected token found.
+[Syntax Error][66:8] Expected ')'.
+[Syntax Error][68:8] Expected ')'.
+[Syntax Error][70:8] Expected ')'.
+[Syntax Error][73:14] Expected ')'.
+[Syntax Error][77:21] Expected ')'.
+[Syntax Error][80:7] Expected assignment_expression in expression.
+[Syntax Error][81:16] Expected ')'.
+[Syntax Error][83:6] Expected assignment_expression in expression.
+[Syntax Error][84:16] Expected ')'.
+[Syntax Error][87:0] Expected assignment_expression in expression.
+[Syntax Error][90:8] Expected assignment_expression in expression.
+[Syntax Error][91:16] Expected ')'.
+[Syntax Error][93:11] Expected ')'.
+[Syntax Error][95:0] Expected assignment_expression in expression.
+[Syntax Error][96:10] Expected assignment_expression in expression.
+[Syntax Error][97:12] Expected ')'.
+[Syntax Error][99:11] Expected assignment_expression in expression.
+[Syntax Error][99:29] Expected assignment_expression in expression.
+[Syntax Error][101:0] Expected assignment_expression in expression.
+[Syntax Error][102:7] Expected assignment_expression in expression.
+[Syntax Error][103:14] Expected assignment_expression in expression.
+[Syntax Error][104:6] Expected assignment_expression in expression.
+[Syntax Error][107:11] Expected assignment_expression in expression.
+[Syntax Error][109:20] Expected ')'.
+[Syntax Error][111:18] Expected assignment_expression in expression.
+[Syntax Error][113:20] Expected ')'.
+[Syntax Error][115:18] Expected assignment_expression in expression.
+[Syntax Error][117:20] Expected ')'.
+[Syntax Error][120:0] Expected assignment_expression in expression.
+[Syntax Error][123:10] Expected ')'.
+[Syntax Error][125:10] Expected ')'.
+[Syntax Error][127:10] Expected ')'.
+[Syntax Error][129:10] Expected ')'.
+[Syntax Error][132:17] Expected ')'.
+[Syntax Error][134:12] Expected ')'.
+[Syntax Error][137:11] Expected assignment_expression in expression.
+[Syntax Error][140:0] Expected assignment_expression in expression.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][2:0] Expected compound statement in function definition.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:36] Unexpected token found.
+[Syntax Error][1:36] Expected compound statement in function definition.
+[Syntax Error][1:67] Unexpected token found.
+[Syntax Error][1:67] Missing semicolon.
+[Syntax Error][1:51] Unexpected token found.
+[Syntax Error][1:51] Expected compound statement in function definition.
+[Syntax Error][1:97] Unexpected token found.
+[Syntax Error][1:97] Missing semicolon.
+[Syntax Error][1:51] Unexpected token found.
+[Syntax Error][1:51] Expected compound statement in function definition.
+[Syntax Error][1:97] Unexpected token found.
+[Syntax Error][1:97] Missing semicolon.
+[Syntax Error][2:0] Expected compound statement in function definition.
+[Syntax Error][2:0] Expected compound statement in function definition.
+[Syntax Error][4:0] Expected compound statement in function definition.
+[Syntax Error][5:11] Unexpected token found.
+[Syntax Error][5:11] Expected compound statement in function definition.
+[Syntax Error][5:17] Unexpected token found.
+[Syntax Error][5:17] Missing semicolon.
+[Syntax Error][5:17] Expected end of file, but got 'TokenVoid'
+[Syntax Error][2:0] Expected compound statement in function definition.
+[Syntax Error][4:0] Expected compound statement in function definition.
+[Syntax Error][6:0] Expected compound statement in function definition.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][51:4] Expected compound statement in function definition.
+[Syntax Error][54:4] Missing semicolon.
+[Syntax Error][54:4] Expected end of file, but got 'TokenVoid'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][154:11] Expected assignment_expression in expression.
+[Syntax Error][157:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][158:11] Expected assignment_expression in expression.
+[Syntax Error][161:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][159:11] Expected assignment_expression in expression.
+[Syntax Error][162:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][1:11] Unexpected token found.
+[Syntax Error][2:9] Expected ')'.
+[Syntax Error][4:1] Expected assignment_expression in expression.
+[Syntax Error][1:11] Unexpected token found.
+[Syntax Error][2:8] Expected ')'.
+[Syntax Error][2:13] Expected assignment_expression in expression.
+[Syntax Error][2:13] Expected ')'.
+[Syntax Error][2:13] Expected compound statement in function definition.
+[Syntax Error][2:20] Unexpected token found.
+[Syntax Error][3:0] Missing semicolon.
+[Syntax Error][1:11] Unexpected token found.
+[Syntax Error][2:9] Expected ')'.
+[Syntax Error][4:1] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][158:9] Expected ')'.
+[Syntax Error][163:11] Expected assignment_expression in expression.
+[Syntax Error][166:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:8] Expected ')'.
+[Syntax Error][157:13] Expected assignment_expression in expression.
+[Syntax Error][157:13] Expected ')'.
+[Syntax Error][157:13] Expected compound statement in function definition.
+[Syntax Error][157:13] Expected end of file, but got 'TokenIdentifier'
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:9] Expected ')'.
+[Syntax Error][159:9] Expected ')'.
+[Syntax Error][164:11] Expected assignment_expression in expression.
+[Syntax Error][167:0] Expected assignment_expression in expression.
+[Syntax Error][34:11] Expected assignment_expression in expression.
+[Syntax Error][36:0] Expected assignment_expression in expression.
+[Syntax Error][39:12] Expected ')'.
+[Syntax Error][42:0] Expected assignment_expression in expression.
+[Syntax Error][45:0] Expected compound statement in function definition.
+[Syntax Error][47:0] Expected compound statement in function definition.
+[Syntax Error][49:0] Expected compound statement in function definition.
+[Syntax Error][52:30] Expected assignment_expression in expression.
+[Syntax Error][53:0] Expected assignment_expression in expression.
+[Syntax Error][55:11] Unexpected token found.
+[Syntax Error][77:8] Expected ')'.
+[Syntax Error][79:8] Expected ')'.
+[Syntax Error][81:8] Expected ')'.
+[Syntax Error][84:14] Expected ')'.
+[Syntax Error][88:21] Expected ')'.
+[Syntax Error][92:15] Expected ')'.
+[Syntax Error][97:7] Expected assignment_expression in expression.
+[Syntax Error][98:16] Expected ')'.
+[Syntax Error][100:6] Expected assignment_expression in expression.
+[Syntax Error][101:16] Expected ')'.
+[Syntax Error][104:0] Expected assignment_expression in expression.
+[Syntax Error][107:8] Expected assignment_expression in expression.
+[Syntax Error][108:16] Expected ')'.
+[Syntax Error][110:11] Expected ')'.
+[Syntax Error][112:0] Expected assignment_expression in expression.
+[Syntax Error][113:10] Expected assignment_expression in expression.
+[Syntax Error][114:12] Expected ')'.
+[Syntax Error][116:11] Expected assignment_expression in expression.
+[Syntax Error][116:29] Expected assignment_expression in expression.
+[Syntax Error][118:0] Expected assignment_expression in expression.
+[Syntax Error][119:7] Expected assignment_expression in expression.
+[Syntax Error][120:14] Expected assignment_expression in expression.
+[Syntax Error][121:6] Expected assignment_expression in expression.
+[Syntax Error][124:11] Expected assignment_expression in expression.
+[Syntax Error][126:20] Expected ')'.
+[Syntax Error][128:18] Expected assignment_expression in expression.
+[Syntax Error][130:20] Expected ')'.
+[Syntax Error][132:18] Expected assignment_expression in expression.
+[Syntax Error][134:20] Expected ')'.
+[Syntax Error][137:0] Expected assignment_expression in expression.
+[Syntax Error][140:10] Expected ')'.
+[Syntax Error][142:10] Expected ')'.
+[Syntax Error][144:10] Expected ')'.
+[Syntax Error][146:10] Expected ')'.
+[Syntax Error][149:17] Expected ')'.
+[Syntax Error][151:12] Expected ')'.
+[Syntax Error][155:9] Expected ')'.
+[Syntax Error][157:9] Expected ')'.
+[Syntax Error][159:9] Expected ')'.
+[Syntax Error][161:9] Expected ')'.
+[Syntax Error][163:9] Expected ')'.
+[Syntax Error][166:11] Expected assignment_expression in expression.
+[Syntax Error][169:0] Expected assignment_expression in expression.

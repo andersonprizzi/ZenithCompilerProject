@@ -180,31 +180,22 @@ pointer_suffix
 ## Grammar rules for parameters
 ```bnf
 parameter_type_list
-    : parameter_list parameter_type_sequence
+    : parameter_list
+    | parameter_list TokenComma TokenEllipsis
     ;
-
-
-parameter_type_sequence
-    : TokenComma TokenEllipsis
-    | ε
-    ;
-
 
 parameter_list
     : parameter_declaration parameter_sequence
     ;
-
 
 parameter_sequence
     : TokenComma parameter_declaration parameter_sequence
     | ε
     ;
 
-
 parameter_declaration
     : declaration_specifiers parameter_declaration_suffix
     ;
-
 
 parameter_declaration_suffix
     : declarator
