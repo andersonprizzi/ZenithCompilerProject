@@ -142,18 +142,29 @@ int external_definition() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "external_definition()");
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
+    CC71_BacktrackingStart();
+
     if (!declaration_specifiers()) {
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "external_definition()");
         return PARSE_FAIL;
     }
 
-    if (declaration_suffix()) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "external_definition()");
-        return PARSE_SUCCESS;
-    } else {
+    declaration_suffix();
+
+    if (CC71_GlobalTokenNumber != TokenSemicolon) {
+        CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, NULL);
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "external_definition()");
         return PARSE_FAIL;
     }
+
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+    CC71_GetToken();
+
+    CC71_BacktrackingEnd();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "external_definition()");
+    return PARSE_SUCCESS;
 }
 
 
@@ -206,9 +217,9 @@ int declaration_suffix() {
     CC71_BacktrackingStart();
 
     if (!init_declarator()) {
-        CC71_BacktrackingRestore();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
-        return PARSE_FAIL;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix() [ε]");
+        return PARSE_SUCCESS;
     }
 
     while (CC71_GlobalTokenNumber == TokenComma) {
@@ -222,14 +233,6 @@ int declaration_suffix() {
         }
     }
 
-    if (CC71_GlobalTokenNumber != TokenSemicolon) {
-        CC71_BacktrackingRestore();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
-        return PARSE_FAIL;
-    }
-
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
-    CC71_GetToken();
     CC71_BacktrackingEnd();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix()");
     return PARSE_SUCCESS;
