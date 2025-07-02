@@ -69,17 +69,6 @@ declaration_specifiers_sequence
     ;
 
 
-declaration_list
-    : external_definition declaration_list_sequence
-    ;
-
-
-declaration_list_sequence
-    : external_definition declaration_list_sequence
-    | ε
-    ;
-
-
 init_declarator
     : declarator init_declarator_sequence
     ;
@@ -350,21 +339,19 @@ enumerator_suffix
 ## Grammar rules for statements
 ```bnf
 compound_statement
-    : TokenOpenBrace TokenCloseBrace
-    | TokenOpenBrace statement_list TokenCloseBrace
-    | TokenOpenBrace declaration_list TokenCloseBrace
-    | TokenOpenBrace declaration_list statement_list TokenCloseBrace
+    : TokenOpenBrace block_item_sequence TokenCloseBrace
     ;
 
 
-statement_list
-    : statement statement_list_sequence
-    ;
-
-
-statement_list_sequence
-    : statement statement_list_sequence
+block_item_sequence
+    : block_item block_item_sequence
     | ε
+    ;
+
+
+block_item
+    : external_definition
+    | statement
     ;
 
 
@@ -382,17 +369,6 @@ labeled_statement
     : TokenIdentifier TokenColon statement
     | TokenCase constant_expression TokenColon statement
     | TokenDefault TokenColon statement
-    ;
-
-
-declaration_list
-    : external_definition declaration_list_sequence
-    ;
-
-
-declaration_list_sequence
-    : external_definition declaration_list_sequence
-    | ε
     ;
 
 
