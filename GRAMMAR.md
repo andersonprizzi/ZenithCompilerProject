@@ -32,7 +32,7 @@ function_definition
 
 
 external_definition
-    : declaration_specifiers declaration_suffix
+    : declaration_specifiers declaration_suffix TokenSemicolon
     ;
 ```
 
@@ -54,6 +54,7 @@ declaration_specifiers
 
 declaration_suffix
     : init_declarator declaration_suffix_sequence
+    | ε
     ;
 
 
@@ -256,9 +257,14 @@ struct_or_union_specifier
 
 
 struct_or_union_body
-    : TokenIdentifier TokenOpenBrace field_declaration_list TokenCloseBrace
+    : TokenIdentifier struct_or_union_sequence
     | TokenOpenBrace field_declaration_list TokenCloseBrace
-    | TokenIdentifier
+    ;
+
+
+struct_or_union_sequence
+    : TokenOpenBrace field_declaration_list TokenCloseBrace
+    | ε
     ;
 
 
