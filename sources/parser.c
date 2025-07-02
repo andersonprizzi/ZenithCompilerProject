@@ -82,7 +82,7 @@ int translation_unit_sequence() {
 // OK
 int external_declaration() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "external_declaration()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     CC71_BacktrackingStart();
 
@@ -140,7 +140,7 @@ int function_definition() {
 // OK
 int external_definition() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "external_definition()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
     CC71_BacktrackingStart();
 
@@ -192,7 +192,7 @@ int declaration_specifiers() {
 // OK
 int declaration_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifier()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     if (storage_specifier()) { 
         return PARSE_SUCCESS; 
@@ -737,7 +737,7 @@ int direct_abstract_declarator_base() {
 
 
 int direct_abstract_declarator_sequence() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_abstract_declarator_sequence() function.");
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_abstract_declarator_sequence() function.");
 
     CC71_BacktrackingStart();
     if (direct_abstract_declarator_suffix()) {
@@ -745,7 +745,7 @@ int direct_abstract_declarator_sequence() {
         BACKTRACK_END();
         return 1;
     }
-    // epsilon
+    
     BACKTRACK_END();
     return 1;
 }
@@ -755,7 +755,7 @@ int direct_abstract_declarator_sequence() {
 
 
 int direct_abstract_declarator_suffix() {
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_abstract_declarator_suffix() function.");
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Entered the direct_abstract_declarator_suffix() function.");
 
     CC71_BacktrackingStart();
     switch(CC71_GlobalTokenNumber) {
@@ -1098,10 +1098,8 @@ int identifier_list_sequence() {
 int initializer() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "initializer()");
 
-    printf("\n############## TEST 1 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
-
     CC71_BacktrackingStart();
-    printf("\n############## TEST 2 ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
+    
     if (assignment_expression()) {
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "initializer()");
@@ -3111,8 +3109,6 @@ int equality_expression_suffix() {
 int relational_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "relational_expression()");
 
-    printf("############## TEST ABCD ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
-
     CC71_BacktrackingStart();
 
     if (!shift_expression()) {
@@ -3139,8 +3135,6 @@ int relational_expression() {
 // OK
 int relational_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "relational_expression_suffix()");
-
-    printf("############## TEST EFGH ############## %s\n\n", CC71_TokenToString(CC71_GlobalTokenNumber));
     
     CC71_BacktrackingStart();
 
@@ -3690,7 +3684,7 @@ int postfix_expression_suffix() {
 // OK
 int primary_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "primary_expression()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     switch(CC71_GlobalTokenNumber) {
         case TokenIdentifier:
@@ -4065,7 +4059,7 @@ int unary_operator() {
 // OK
 int assignment_operator() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "assignment_operator()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
 
     switch (CC71_GlobalTokenNumber) {
         case TokenAssign:

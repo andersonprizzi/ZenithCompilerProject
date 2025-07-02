@@ -188,7 +188,7 @@ extern CC71_ContextType pilhacon[1000];
 extern int topcontexto;
 
 extern FILE *CC71_GlobalInputFile;
-extern FILE *CC71_GlobalOutputFile;
+extern FILE *CC71_GlobalOutputErrorFile;
 
 extern const int CC71_DebugMode;
 extern const char* tokens[];

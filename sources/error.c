@@ -73,16 +73,9 @@ int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt,
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
     const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
 
-    FILE *file = fopen("data/output/error.txt", "a");  // abre em modo append
-    if (!file) {
-        // Se falhar ao abrir, ainda loga no stderr como fallback
-        fprintf(stderr, "Error: could not open error log file data/output/error.txt\n");
-        return 1;
-    }
-
     if (!entry) {
-        fprintf(file, "[%d:%d] Unknown error code %d.\n", line, column, code);
-        fclose(file);
+        fprintf(CC71_GlobalOutputErrorFile, "[%d:%d] Unknown error code %d.\n", line, column, code);
+        fclose(CC71_GlobalOutputErrorFile);
         return 1;
     }
 
@@ -90,18 +83,18 @@ int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt,
         va_list args;
         va_start(args, fmt);
 
-        fprintf(file, "[%s][%d:%d] ", errorType, line, column);
-        vfprintf(file, fmt, args);
-        fprintf(file, "\n");
-        fflush(file);
+        fprintf(CC71_GlobalOutputErrorFile, "[%s][%d:%d] ", errorType, line, column);
+        vfprintf(CC71_GlobalOutputErrorFile, fmt, args);
+        fprintf(CC71_GlobalOutputErrorFile, "\n");
+        fflush(CC71_GlobalOutputErrorFile);
 
         va_end(args);
     } else {
-        fprintf(file, "[%s][%d:%d] %s\n", errorType, line, column, entry->message);
-        fflush(file);
+        fprintf(CC71_GlobalOutputErrorFile, "[%s][%d:%d] %s\n", errorType, line, column, entry->message);
+        fflush(CC71_GlobalOutputErrorFile);
     }
 
-    fclose(file);
+    fclose(CC71_GlobalOutputErrorFile);
 
     if (entry->type == CC71_ERROR_FATAL) {
         exit(EXIT_FAILURE);

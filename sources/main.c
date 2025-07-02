@@ -22,21 +22,8 @@
 // COMPLEMENTARY FUNCTIONS                                                 //
 /////////////////////////////////////////////////////////////////////////////
 
-/*
-void insertIntoFile(const char *lexeme, const char *tokenName, int lineNumber, int columnNumber) {
-    fprintf(outputFile, "Token '%s' (%s) was found at line %d, column %d.\n", lexeme, tokenName, lineNumber, columnNumber);
-}
-*/
-
-
-void AC71_OpenSourceFile(const char *inputFileName, const char *outputFileName) {
-    CC71_GlobalInputFile = fopen(inputFileName,"rb");
-    CC71_GlobalOutputFile = fopen(outputFileName, "w");
-}
-
-
 int CC71_ValidateFilePointers() {
-    if (CC71_GlobalInputFile == NULL || CC71_GlobalOutputFile == NULL) {
+    if (CC71_GlobalInputFile == NULL || CC71_GlobalOutputErrorFile == NULL) {
         printf("ERROR: Could not open file.\n");
         return FALSE;
     }
@@ -51,11 +38,11 @@ int CC71_ValidateFilePointers() {
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file> <output_error_file\n", argv[0]);
         return 1;
     }
     const char *input_path = argv[1];
-    const char *output_path = argv[2];
+    const char *output_error_path = argv[2];
 
     CC71_GlobalInputFile = fopen(input_path, "r");
     if (!CC71_GlobalInputFile) {
@@ -63,14 +50,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    CC71_GlobalOutputFile = fopen(output_path, "w");
-    if (!CC71_GlobalOutputFile) {
-        perror("Error opening output file.");
-        fclose(CC71_GlobalInputFile);
+    CC71_GlobalOutputErrorFile = fopen(output_error_path, "w");
+    if (!CC71_GlobalOutputErrorFile) {
+        perror("Error opening error output file.");
+        fclose(CC71_GlobalOutputErrorFile);
         return 1;
     }
 
-    //AC71_OpenSourceFile("font.c","output.txt");
     if (!CC71_ValidateFilePointers()) return 1;
 
     columnAux = CC71_GlobalCurrentColumn;
@@ -90,10 +76,11 @@ int main(int argc, char *argv[]) {
         CC71_GetToken();
 	}*/
 
-	//if (currentChar == -1) CC71_LogMessage(CC71_LOG_INFO, "The lexical-syntactic analyzer completed the operations successfully.");
+	if (currentChar == -1) printf("The lexical-syntactic analyzer completed the operations successfully.\n");
 
 	fclose(CC71_GlobalInputFile);
-	fclose(CC71_GlobalOutputFile);
+    fflush(CC71_GlobalOutputErrorFile);
+	fclose(CC71_GlobalOutputErrorFile);
 
 	return 0;
 }

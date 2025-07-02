@@ -30,8 +30,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char* format, ...) {
-    const char *levelStr;
-    const char *eventStr; 
+    return;
+    /*const char *levelStr;
     const char *color;
 
     switch (logLevel) {
@@ -42,39 +42,66 @@ void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char*
         default:               levelStr = "LOG";     color = ANSI_COLOR_RESET; break;
     }
 
-    va_list args;
-    va_start(args, format);
+    FILE *out;
+    int is_file = 0;
 
-    switch (logEvent) {
-        case CC71_LOG_EVENT_ACCEPTED_TOKEN: {
-            int token = va_arg(args, int);
-            const char* lexeme = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [ACCEPTED TOKEN................]%s %d ('%s')\n",
-                    color, levelStr, ANSI_COLOR_MAGENTA, ANSI_COLOR_RESET, token, lexeme);
-            break;
-        }
-        case CC71_LOG_EVENT_ENTER_FUNCTION: {
-            const char* funcName = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [ENTERING FUNCTION.............]%s %s\n", color, levelStr, ANSI_COLOR_YELLOW, ANSI_COLOR_RESET, funcName);
-            break;
-        }
-        case CC71_LOG_EVENT_EXIT_SUCCESS: {
-            const char* funcName = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [EXITING FUNCTION (SUCCESS)....]%s %s\n", color, levelStr, ANSI_COLOR_GREEN, ANSI_COLOR_RESET, funcName);
-            break;
-        }
-        case CC71_LOG_EVENT_EXIT_FAILURE: {
-            const char* funcName = va_arg(args, const char*);
-            fprintf(stderr, "%s[%s]%s [EXITING FUNCTION (FAILURE)....]%s %s\n", color, levelStr, ANSI_COLOR_RED, ANSI_COLOR_RESET, funcName);
-            break;
-        }
-        default: {
-            fprintf(stderr, "%s[%s]%s ", color, levelStr, ANSI_COLOR_RESET);
-            vfprintf(stderr, format, args);
-            fprintf(stderr, "\n");
-        }
+    if (CC71_GlobalOutputErrorFile) {
+        out = CC71_GlobalOutputErrorFile;
+        color = "";
+        is_file = 1;
+    } else {
+        out = stderr;
+        is_file = 0;
     }
 
-    fflush(stderr);
-    va_end(args);
+    const char *color_magenta = is_file ? "" : ANSI_COLOR_MAGENTA;
+    const char *color_yellow = is_file ? "" : ANSI_COLOR_YELLOW;
+    const char *color_green = is_file ? "" : ANSI_COLOR_GREEN;
+    const char *color_red = is_file ? "" : ANSI_COLOR_RED;
+    const char *color_reset = is_file ? "" : ANSI_COLOR_RESET;
+
+    va_list args;
+
+    if (logEvent != CC71_LOG_EVENT_GENERIC) {
+        va_start(args, format);
+
+        switch (logEvent) {
+            case CC71_LOG_EVENT_ACCEPTED_TOKEN: {
+                int token = va_arg(args, int);
+                const char* lexeme = va_arg(args, const char*);
+                fprintf(out, "%s[%s]%s [ACCEPTED TOKEN................]%s %d ('%s')\n",
+                        color, levelStr, color_magenta, color_reset, token, lexeme);
+                break;
+            }
+            case CC71_LOG_EVENT_ENTER_FUNCTION: {
+                const char* funcName = va_arg(args, const char*);
+                fprintf(out, "%s[%s]%s [ENTERING FUNCTION.............]%s %s\n", color, levelStr, color_yellow, color_reset, funcName);
+                break;
+            }
+            case CC71_LOG_EVENT_EXIT_SUCCESS: {
+                const char* funcName = va_arg(args, const char*);
+                fprintf(out, "%s[%s]%s [EXITING FUNCTION (SUCCESS)....]%s %s\n", color, levelStr, color_green, color_reset, funcName);
+                break;
+            }
+            case CC71_LOG_EVENT_EXIT_FAILURE: {
+                const char* funcName = va_arg(args, const char*);
+                fprintf(out, "%s[%s]%s [EXITING FUNCTION (FAILURE)....]%s %s\n", color, levelStr, color_red, color_reset, funcName);
+                break;
+            }
+            default:
+                break;
+        }
+
+        va_end(args);
+
+    } else {
+        va_start(args, format);
+        fprintf(out, "%s[%s]%s ", color, levelStr, color_reset);
+        vfprintf(out, format, args);
+        fprintf(out, "\n");
+        va_end(args);
+    }
+
+    fflush(out);
+    */
 }
