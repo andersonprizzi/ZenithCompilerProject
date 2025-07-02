@@ -3758,10 +3758,12 @@ int type_specifier() {
 // OK
 int primitive_type_specifier() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "primitive_type_specifier()");
-    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
+    //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "Current token: %s", CC71_TokenToString(CC71_GlobalTokenNumber));
     
     switch (CC71_GlobalTokenNumber) {
         case TokenVoid:
+        case TokenSigned:
+        case TokenUnsigned:
         case TokenChar:
         case TokenShort:
         case TokenInt:
@@ -3774,6 +3776,15 @@ int primitive_type_specifier() {
             CC71_GetToken();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "primitive_type_specifier()");
             return PARSE_SUCCESS;
+        
+        // TODO: Improve this issue in the future in the semantic analyzer.
+        /*case TokenIdentifier:
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+            CC71_GetToken();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "primitive_type_specifier()");
+            return PARSE_SUCCESS;
+        */
+
         default:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "primitive_type_specifier()");
             return PARSE_FAIL;

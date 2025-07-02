@@ -1,3 +1,9 @@
+typedef struct Node {
+    int value;
+    struct Node *next;
+} Node;
+
+
 enum Color {
     RED,
     GREEN,
@@ -32,7 +38,19 @@ void fb(int a, char b, ...);
 void fc(const char *fmt, ...);
 
 
+int (*get_op(char op))(int, int) {
+    return add;
+}
+
+
+int (*get_op(char op))(int, int);
+int add(int x, int y) { return x + y; }
+
+
 int square(int x) { return x * x; }
+
+
+int global_var;
 
 
 int main() {
@@ -47,14 +65,32 @@ int main() {
     int j = 5, k = 10;
     float l = 3.14;
     char m = 'Z';
-    const int n;
+
     struct Point my_struct = {1, 2};
     union Data my_union;
     enum Color my_color = GREEN;
 
+    static int counter;
+    extern int external_var;
+    volatile int flag;
+    const int max_value = 100;
+    register int fast_var;
+    static void helper_function(void);
+
+    unsigned int u;
+    signed char s;
+
+    int bits = (a & 1) | (b << 8);
+
+    float n = (float) a / b;
+
+    int size = sizeof(struct Point);
+
     a = 12;
     b = a;
     c = b = 3;
+
+    c = b + 14;
     
     my_union.i = 42;
 
@@ -114,6 +150,59 @@ int main() {
     a *= 3;
     a /= 3;
     a %= 3;
+
+    int value = 10;
+
+    {
+        int value = 5;
+        printf("%d\n", value);
+    }
+
+    label:
+        printf("Jumped here\n");
+        goto label;
+
+    c = -a;
+    printf("Negative of 'a': %d\n", c);
+    printf("Sum: %d\n", a + b);
+    printf("Sub: %d\n", a - b);
+    printf("Mul: %d\n", a * b);
+    printf("Div: %d\n", a / b);
+    printf("Res: %d\n", a % b);
+
+    printf("a > b: %d\n", a > b);
+    printf("a < b: %d\n", a < b);
+    printf("a == b: %d\n", a == b);
+    printf("a != b: %d\n", a != b);
+    printf("a >= b: %d\n", a >= b);
+    printf("a <= b: %d\n", a <= b);
+
+    printf("a & b: %d\n", a & b);
+    printf("a | b: %d\n", a | b);
+    printf("a ^ b: %d\n", a ^ b);
+    printf("a >> 1: %d\n", a >> 1);
+    printf("a << 1: %d\n", a << 1);
+    printf("~a: %d\n", ~a);
+
+    printf("a && b: %d\n", a && b);
+    printf("a || b: %d\n", a || b);
+    printf("!a: %d\n", !a);
+
+    c = a;
+    c += b;
+    printf("c += b: %d\n", c);
+    c -= b;
+    printf("c -= b: %d\n", c);
+    c *= b;
+    printf("c *= b: %d\n", c);
+    c /= b;
+    printf("c /= b: %d\n", c);
+    c %= b;
+    printf("c %%= b: %d\n", c);
+    c <<= 1;
+    printf("c <<= 1: %d\n", c);
+    c >>= 1;
+    printf("c >>= 1: %d\n", c);
     
     return 0;
 }
