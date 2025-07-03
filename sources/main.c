@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
 
     // Lexical-syntactic recognition.
     if (translation_unit()) {
-        printf("The source code is syntactically correct.\n");
+        printf("\nThe source code is syntactically correct.\n\n");
     } else {
-        printf("The source code is not syntactically correct.\n");
+        printf("\nThe source code is not syntactically correct.\n\n");
     }
 
     // Lexical recognition.
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         CC71_GetToken();
 	}*/
 
-	if (currentChar == -1) printf("\nThe lexical-syntactic analyzer completed the operations successfully.\n");
+	//if (currentChar == -1) printf("\nThe lexical-syntactic analyzer completed the operations successfully.\n");
 
 	fclose(CC71_GlobalInputFile);
     fflush(CC71_GlobalOutputErrorFile);

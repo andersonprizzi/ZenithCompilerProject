@@ -20,6 +20,7 @@ int CC71_GlobalCurrentColumn = 0;
 int columnAux;
 char lex[20];
 char currentChar;
+int CC71_SilentMode = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 

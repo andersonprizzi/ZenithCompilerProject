@@ -51,9 +51,7 @@ const CC71_ErrorEntry* CC71_GetErrorEntry(CC71_ErrorCode code) {
     return NULL;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
-
 
 const char* CC71_GetErrorType(CC71_ErrorType type) {
     switch (type) {
@@ -65,9 +63,7 @@ const char* CC71_GetErrorType(CC71_ErrorType type) {
     }
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
-
 
 /*int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
@@ -106,6 +102,8 @@ const char* CC71_GetErrorType(CC71_ErrorType type) {
 int CC71_FLAG_ERROR = 0;
 
 int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
+    if (CC71_SilentMode > 0) return;
+
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
     const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
 
@@ -140,12 +138,36 @@ int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt,
     return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////
 
-void CC71_ReportExpectedTokenError(int expectedToken) {
+/**
+ * @brief Reports a syntax error when an unexpected token is encountered.
+ *
+ * This function compares the expected token with the current token and logs an error message
+ * if they do not match. It respects the global silent mode used during backtracking to avoid
+ * logging errors that are part of exploratory parsing attempts, unless forced.
+ *
+ * @param expectedToken The token that was expected.
+ * @param ... (Optional) One integer argument (force): if non-zero, forces error reporting even in silent mode.
+ */
+void CC71_ReportExpectedTokenError(int expectedToken, ...) {
+    int force = 0;
+
+    va_list args;
+    va_start(args, expectedToken);
+
+    // Se a chamada tiver um segundo argumento (int), será extraído aqui corretamente
+    force = va_arg(args, int);
+
+    va_end(args);
+
+    // Respeita o modo silencioso, exceto se `force` for verdadeiro
+    if (CC71_SilentMode > 0 && !force) return;
+
     CC71_ReportError(
         CC71_ERR_SYN_UNEXPECTED_TOKEN,
         CC71_GlobalCurrentLine,
-        CC71_GlobalCurrentColumn,
+        columnAux,
         "Expected '%s' but found '%s'.",
         CC71_TokenToString(expectedToken),
         CC71_TokenToString(CC71_GlobalTokenNumber)
@@ -153,9 +175,7 @@ void CC71_ReportExpectedTokenError(int expectedToken) {
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////
-
 
 const char* CC71_TokenToString(int token) {
     if (token >= 0 && token < TokenCount && tokens[token]) {

@@ -183,6 +183,7 @@ extern int CC71_GlobalCurrentLine;
 extern int CC71_GlobalCurrentColumn;
 extern int columnAux;
 extern char currentChar;
+extern int CC71_SilentMode;
 
 extern CC71_ContextType pilhacon[1000];
 extern int topcontexto;
