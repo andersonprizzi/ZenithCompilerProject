@@ -83,6 +83,8 @@ int external_declaration() {
     
     CC71_BacktrackingStart();
 
+    CC71_SilentMode = 0;
+
     if (function_definition()) {
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "external_declaration()");
@@ -91,6 +93,8 @@ int external_declaration() {
 
     CC71_BacktrackingRestore();
     CC71_BacktrackingStart();
+
+    CC71_SilentMode = 0;
 
     if (external_definition()) {
         CC71_BacktrackingEnd();
@@ -110,20 +114,16 @@ int external_declaration() {
 // OK
 int function_definition() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "function_definition()");
-    
+
     if (!declaration_specifiers()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "function_definition()");
         return PARSE_FAIL;
     }
 
-    printf("CC71_SilentMode ANTES DE DECLARATOR: %d\n", CC71_SilentMode);
-
     if (!declarator()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "function_definition()");
         return PARSE_FAIL;
     }
-
-    printf("CC71_SilentMode DEPOIS DE DECLATOR: %d\n", CC71_SilentMode);
     
     if (!compound_statement()) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "function_definition()");
@@ -175,8 +175,6 @@ int external_definition() {
 int declaration_specifiers() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_specifiers()");
     
-    printf("CC71_SilentMode declaration_specifiers: %d\n", CC71_SilentMode);
-
     if (!declaration_specifier()) {
         CC71_ReportError(
             CC71_ERR_SYN_UNEXPECTED_TOKEN,
@@ -224,10 +222,8 @@ int declaration_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "declaration_suffix()");
 
     CC71_BacktrackingStart();
-    CC71_SilentMode++;
 
     if (!init_declarator()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix() [ε]");
         return PARSE_SUCCESS;
@@ -238,14 +234,20 @@ int declaration_suffix() {
         CC71_GetToken();
 
         if (!init_declarator()) {
-            CC71_SilentMode--;
+            CC71_SilentMode = 0;
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected TokenAsterisk, TokenIdentifier or TokenOpenParentheses but found '%s'.",
+                CC71_TokenToString(CC71_GlobalTokenNumber)
+            );
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "declaration_suffix()");
             return PARSE_FAIL;
         }
     }
-
-    CC71_SilentMode--;
+    
     CC71_BacktrackingEnd();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "declaration_suffix()");
     return PARSE_SUCCESS;
@@ -490,15 +492,13 @@ int direct_declarator_base() {
         return PARSE_SUCCESS;
     }
 
-    printf("CC71_SilentMode direct_declarator_base: %d\n", CC71_SilentMode);
-
-    CC71_ReportError(
+    /*CC71_ReportError(
         CC71_ERR_SYN_UNEXPECTED_TOKEN,
         CC71_GlobalCurrentLine,
         columnAux,
         "Expected TokenIdentifier or TokenOpenParentheses but found '%s'.",
         CC71_TokenToString(CC71_GlobalTokenNumber)
-    );
+    );*/
 
     CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "direct_declarator_base()");
@@ -1007,8 +1007,6 @@ int parameter_declaration() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "parameter_declaration()");
 
     CC71_BacktrackingStart();
-
-    printf("CC71_SilentMode: %d\n", CC71_SilentMode);
 
     if (!declaration_specifiers()) {
         CC71_BacktrackingRestore();
@@ -1828,10 +1826,8 @@ int compound_statement() {
 
     CC71_BacktrackingStart();
 
-    printf("CC71_SilentMode compound_statement: %d\n", CC71_SilentMode);
-
     if (CC71_GlobalTokenNumber != TokenOpenBrace) {
-        CC71_ReportExpectedTokenError(TokenOpenBrace, 0); // TEST OK
+        //CC71_ReportExpectedTokenError(TokenOpenBrace);
         CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "compound_statement()");
         return PARSE_FAIL;
@@ -1847,7 +1843,7 @@ int compound_statement() {
     }
 
     if (CC71_GlobalTokenNumber != TokenCloseBrace) {
-        CC71_ReportExpectedTokenError(TokenCloseBrace); // TEST OK
+        CC71_ReportExpectedTokenError(TokenCloseBrace), FORCE_ERROR_THROW;
         CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "compound_statement()");
         return PARSE_FAIL;
@@ -1896,7 +1892,10 @@ int block_item() {
 
     CC71_BacktrackingStart();
 
+    CC71_SilentMode++;
+
     if (external_definition()) {
+        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "block_item() [external_definition]");
         return PARSE_SUCCESS;
@@ -1906,11 +1905,13 @@ int block_item() {
     CC71_BacktrackingStart();
 
     if (statement()) {
+        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "block_item() [statement]");
         return PARSE_SUCCESS;
     }
 
+    CC71_SilentMode--;
     CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "block_item()");
     return PARSE_FAIL;
@@ -1979,53 +1980,43 @@ int statement() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "statement()");
 
     CC71_BacktrackingStart();
-    CC71_SilentMode++;
-
-    printf("CC71_SilentMode statement: %d\n", CC71_SilentMode);
 
     if (labeled_statement()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
         return PARSE_SUCCESS;
     }
 
     else if (compound_statement()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
         return PARSE_SUCCESS;
     }
 
     else if (expression_statement()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
         return PARSE_SUCCESS;
     }
 
     else if (selection_statement()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
         return PARSE_SUCCESS;
     }
 
     else if (iteration_statement()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
         return PARSE_SUCCESS;
     }
 
     else if (jump_statement()) {
-        CC71_SilentMode--;
         CC71_BacktrackingEnd();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "statement()");
         return PARSE_SUCCESS;
     }
 
-    CC71_SilentMode--;
     CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "statement()");
     return PARSE_FAIL;
@@ -2046,7 +2037,6 @@ int labeled_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenColon) {
-            CC71_ReportExpectedTokenError(TokenColon);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
             return PARSE_FAIL;
@@ -2071,13 +2061,22 @@ int labeled_statement() {
         CC71_GetToken();
 
         if (!constant_expression()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected a constant expression after 'case'."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
             return PARSE_FAIL;
         }
 
         if (CC71_GlobalTokenNumber != TokenColon) {
-            //CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, columnAux, NULL);
+            CC71_ReportExpectedTokenError(TokenColon, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
             return PARSE_FAIL;
@@ -2087,6 +2086,15 @@ int labeled_statement() {
         CC71_GetToken();
 
         if (!statement()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected a statement after 'case constant_expression:'."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
             return PARSE_FAIL;
@@ -2102,7 +2110,7 @@ int labeled_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenColon) {
-            CC71_ReportExpectedTokenError(TokenColon);
+            CC71_ReportExpectedTokenError(TokenColon, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
             return PARSE_FAIL;
@@ -2112,6 +2120,15 @@ int labeled_statement() {
         CC71_GetToken();
 
         if (!statement()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected a statement after 'default:'."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
             return PARSE_FAIL;
@@ -2121,6 +2138,14 @@ int labeled_statement() {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "labeled_statement()");
         return PARSE_SUCCESS;
     }
+
+    CC71_ReportError(
+        CC71_ERR_SYN_UNEXPECTED_TOKEN,
+        CC71_GlobalCurrentLine,
+        columnAux,
+        "Expected TokenIdentifier, TokenCase or TokenDefault but found '%s'.",
+        CC71_TokenToString(CC71_GlobalTokenNumber)
+    );
 
     CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "labeled_statement()");
@@ -2151,13 +2176,14 @@ int expression_statement() {
             return PARSE_SUCCESS;
         }
 
-        //CC71_ReportExpectedTokenError(TokenSemicolon);
-        BACKTRACKING_RESTORE();
+        // TODO: VERIFICAR
+        CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
+        CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "expression_statement()");
         return PARSE_FAIL;
     }
 
-    BACKTRACKING_RESTORE();
+    CC71_BacktrackingRestore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "expression_statement()");
     return PARSE_FAIL;
 }
@@ -2177,8 +2203,7 @@ int selection_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenOpenParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenOpenParentheses);
+            CC71_ReportExpectedTokenError(TokenOpenParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement()");
             return PARSE_FAIL;
@@ -2188,14 +2213,22 @@ int selection_statement() {
         CC71_GetToken();
 
         if (!expression()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected expression after '('."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement()");
             return PARSE_FAIL;
         }
         
         if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenCloseParentheses);
+            CC71_ReportExpectedTokenError(TokenCloseParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement()");
             return PARSE_FAIL;
@@ -2226,7 +2259,6 @@ int selection_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenOpenParentheses) {
-            // TEST OK
             CC71_ReportExpectedTokenError(TokenOpenParentheses);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement()");
@@ -2237,14 +2269,22 @@ int selection_statement() {
         CC71_GetToken();
 
         if (!expression()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected expression after '('."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement()");
             return PARSE_FAIL;
         }
 
         if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenCloseParentheses);
+            CC71_ReportExpectedTokenError(TokenCloseParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement()");
             return PARSE_FAIL;
@@ -2284,6 +2324,15 @@ int selection_statement_else_opt() {
         CC71_GetToken();
 
         if (!statement()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected statement after 'else'."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "selection_statement_else_opt()");
             return PARSE_FAIL;
@@ -2309,12 +2358,11 @@ int iteration_statement() {
     CC71_BacktrackingStart();
     
     if (CC71_GlobalTokenNumber == TokenWhile) {
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenOpenParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenOpenParentheses);
-            
+            CC71_ReportExpectedTokenError(TokenOpenParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2324,14 +2372,22 @@ int iteration_statement() {
         CC71_GetToken();
 
         if (!expression()) {
+            CC71_SilentMode = 0;
+
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected expression after '('."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
         }
 
         if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenCloseParentheses);
+            CC71_ReportExpectedTokenError(TokenCloseParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2362,8 +2418,7 @@ int iteration_statement() {
         }
 
         if (CC71_GlobalTokenNumber != TokenWhile) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenWhile);
+            CC71_ReportExpectedTokenError(TokenWhile, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2373,8 +2428,7 @@ int iteration_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenOpenParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenOpenParentheses);
+            CC71_ReportExpectedTokenError(TokenOpenParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2384,14 +2438,22 @@ int iteration_statement() {
         CC71_GetToken();
         
         if (!expression()) {
+            CC71_SilentMode = 0;
+            
+            CC71_ReportError(
+                CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                CC71_GlobalCurrentLine,
+                columnAux,
+                "Expected expression after '('."
+            );
+
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
         }
 
         if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenCloseParentheses);
+            CC71_ReportExpectedTokenError(TokenCloseParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2401,8 +2463,7 @@ int iteration_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenSemicolon) {
-            // TEST OK
-            CC71_ReportExpectedTokenError(TokenSemicolon);
+            CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2421,7 +2482,7 @@ int iteration_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenOpenParentheses) {
-            //CC71_ReportError(CC71_ERR_SYN_EXPECTED_OPEN_PAREN, CC71_GlobalCurrentLine, columnAux, NULL);
+            CC71_ReportExpectedTokenError(TokenOpenParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2464,7 +2525,7 @@ int iteration_statement() {
         }
 
         if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
-            //CC71_ReportError(CC71_ERR_SYN_EXPECTED_CLOSE_PAREN, CC71_GlobalCurrentLine, columnAux, NULL);
+            CC71_ReportExpectedTokenError(TokenCloseParentheses, FORCE_ERROR_THROW);
             CC71_BacktrackingRestore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
@@ -2493,31 +2554,38 @@ int iteration_statement() {
 /////////////////////////////////////////////////////////////////////////////
 
 
+// OK
 int jump_statement() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "jump_statement()");
 
     CC71_BacktrackingStart();
+
     if (CC71_GlobalTokenNumber == TokenGoto) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenIdentifier) {
-            //CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, columnAux, NULL);
-            BACKTRACK_FAIL();
+            CC71_ReportExpectedTokenError(TokenIdentifier, FORCE_ERROR_THROW);
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+            return PARSE_FAIL;
         }
 
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenSemicolon) {
-            //CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, columnAux, NULL);
-            BACKTRACK_FAIL();
+            CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+            return PARSE_FAIL;
         }
 
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        BACKTRACK_END();
-        return 1;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "jump_statement()");
+        return PARSE_SUCCESS;
     }
 
     if (CC71_GlobalTokenNumber == TokenContinue) {
@@ -2525,26 +2593,35 @@ int jump_statement() {
         CC71_GetToken();
 
         if (CC71_GlobalTokenNumber != TokenSemicolon) {
-            //CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, columnAux, NULL);
-            BACKTRACK_FAIL();
+            CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+            return PARSE_FAIL;
         }
 
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        BACKTRACK_END();
-        return 1;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "jump_statement()");
+        return PARSE_SUCCESS;
     }
 
     if (CC71_GlobalTokenNumber == TokenBreak) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
+
         if (CC71_GlobalTokenNumber != TokenSemicolon) {
-            //CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, columnAux, NULL);
-            BACKTRACK_FAIL();
+            CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
+            CC71_BacktrackingRestore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+            return PARSE_FAIL;
         }
+
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         CC71_GetToken();
-        BACKTRACK_END();
-        return 1;
+        CC71_BacktrackingEnd();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "jump_statement()");
+        return PARSE_SUCCESS;
     }
 
     if (CC71_GlobalTokenNumber == TokenReturn) {
@@ -2560,8 +2637,8 @@ int jump_statement() {
 
         if (expression()) {
             if (CC71_GlobalTokenNumber != TokenSemicolon) {
-                //CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, columnAux, NULL);
-                BACKTRACKING_RESTORE();
+                CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
+                CC71_BacktrackingRestore();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
                 return PARSE_FAIL;
             }
@@ -2572,11 +2649,15 @@ int jump_statement() {
             return PARSE_SUCCESS;
         }
 
-        //CC71_ReportError(CC71_ERR_SYN_MISSING_SEMICOLON, CC71_GlobalCurrentLine, columnAux, NULL);
-        BACKTRACK_FAIL();
+        CC71_ReportExpectedTokenError(TokenSemicolon, FORCE_ERROR_THROW);
+        CC71_BacktrackingRestore();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+        return PARSE_FAIL;
     }
 
-    BACKTRACK_FAIL();
+    CC71_BacktrackingRestore();
+    CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "jump_statement()");
+    return PARSE_FAIL;
 }
 
 
@@ -2590,7 +2671,6 @@ int expression() {
     CC71_BacktrackingStart();
 
     if (!assignment_expression()) {
-        //CC71_ReportError(CC71_ERR_SYN_UNEXPECTED_TOKEN, CC71_GlobalCurrentLine, columnAux, "Expected assignment_expression in expression.");
         CC71_BacktrackingRestore();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "expression()");
         return PARSE_FAIL;
@@ -2735,6 +2815,16 @@ int assignment_expression() {
                 CC71_BacktrackingEnd();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "assignment_expression()");
                 return PARSE_SUCCESS;
+            } else {
+                CC71_SilentMode = 0;
+
+                CC71_ReportError(
+                    CC71_ERR_SYN_UNEXPECTED_TOKEN,
+                    CC71_GlobalCurrentLine,
+                    columnAux,
+                    "Expected expression before ';'.",
+                    CC71_TokenToString(CC71_GlobalTokenNumber)
+                );
             }
         }
     }

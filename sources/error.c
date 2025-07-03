@@ -100,9 +100,10 @@ const char* CC71_GetErrorType(CC71_ErrorType type) {
 }*/
 
 int CC71_FLAG_ERROR = 0;
+int CC71_FLAG_FORCE = 0;
 
 int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
-    if (CC71_SilentMode > 0) return;
+    if (CC71_SilentMode > 0 && !CC71_FLAG_FORCE) return;
 
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
     const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
@@ -156,14 +157,17 @@ void CC71_ReportExpectedTokenError(int expectedToken, ...) {
     va_list args;
     va_start(args, expectedToken);
 
-    // Se a chamada tiver um segundo argumento (int), será extraído aqui corretamente
+    // Se a chamada tiver um segundo argumento (int), será extraído aqui.
     force = va_arg(args, int);
 
     va_end(args);
 
-    // Respeita o modo silencioso, exceto se `force` for verdadeiro
-    if (CC71_SilentMode > 0 && !force) return;
+    CC71_FLAG_FORCE = force;
 
+    // Respeita o modo silencioso, exceto se `force` for verdadeiro.
+    if (CC71_SilentMode > 0 && !CC71_FLAG_FORCE) return;
+
+    
     CC71_ReportError(
         CC71_ERR_SYN_UNEXPECTED_TOKEN,
         CC71_GlobalCurrentLine,

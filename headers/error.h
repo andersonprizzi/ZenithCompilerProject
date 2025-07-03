@@ -54,5 +54,6 @@ int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt,
 const CC71_ErrorEntry* CC71_GetErrorEntry(CC71_ErrorCode code);
 const char* CC71_GetErrorType(CC71_ErrorType type);
 const char* CC71_TokenToString(int token);
+void CC71_ReportExpectedTokenError(int expectedToken, ...);
 
 #endif // ERROR_H_INCLUDED
