@@ -1,1 +1,0 @@
-[Syntax Error][5:0] Expected compound statement in function definition.

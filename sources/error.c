@@ -69,7 +69,7 @@ const char* CC71_GetErrorType(CC71_ErrorType type) {
 /////////////////////////////////////////////////////////////////////////////
 
 
-int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
+/*int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
     const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
 
@@ -101,7 +101,57 @@ int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt,
     }
 
     return 0;
+}*/
+
+int CC71_FLAG_ERROR = 0;
+
+int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
+    const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
+    const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
+
+    if (!CC71_FLAG_ERROR) {
+        if (!entry) {
+            fprintf(stderr, "[%d:%d] Unknown error code %d.\n", line, column, code);
+            return 1;
+        }
+
+        if (fmt) {
+            va_list args;
+            va_start(args, fmt);
+
+            fprintf(stderr, "[%s][%d:%d] ", errorType, line, column);
+            vfprintf(stderr, fmt, args);
+            fprintf(stderr, "\n");
+            fflush(stderr);
+
+            va_end(args);
+        } else {
+            fprintf(stderr, "[%s][%d:%d] %s\n", errorType, line, column, entry->message);
+            fflush(stderr);
+        }
+
+        if (entry->type == CC71_ERROR_FATAL) {
+            exit(EXIT_FAILURE);
+        }
+
+        CC71_FLAG_ERROR = 1;
+    }
+
+    return 0;
 }
+
+
+void CC71_ReportExpectedTokenError(int expectedToken) {
+    CC71_ReportError(
+        CC71_ERR_SYN_UNEXPECTED_TOKEN,
+        CC71_GlobalCurrentLine,
+        CC71_GlobalCurrentColumn,
+        "Expected '%s' but found '%s'.",
+        CC71_TokenToString(expectedToken),
+        CC71_TokenToString(CC71_GlobalTokenNumber)
+    );
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////////
