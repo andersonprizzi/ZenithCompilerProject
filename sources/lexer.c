@@ -25,7 +25,7 @@ int palavra_reservada(char lex[]) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CC71_BacktrackingStart() {
+void zenith_backtracking_start() {
     long pos = ftell(CC71_GlobalInputFile);
     pilhacon[topcontexto].posglobal = pos;
     pilhacon[topcontexto].tkant = CC71_GlobalTokenNumber;
@@ -33,11 +33,12 @@ void CC71_BacktrackingStart() {
     strcpy(pilhacon[topcontexto].lexant, lex);
     topcontexto++;
     //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[EMPILHA] Current token = %d ('%s'); context index = %d;", CC71_GlobalTokenNumber, lex, topcontexto);
+    zenith_lowerer_transaction_begin();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CC71_BacktrackingRestore() {
+void zenith_backtracking_restore() {
     if (topcontexto == 0) {
         //CC71_LogMessage(CC71_LOG_ERROR, "restauraPosToken: tentativa de restauracaoo com pilha vazia (topcontexto = 0)");
         return;
@@ -50,15 +51,17 @@ void CC71_BacktrackingRestore() {
     CC71_GlobalTokenNumber = pilhacon[topcontexto].tkant;
     strcpy(lex, pilhacon[topcontexto].lexant);
     //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[DESEMPILHA] token restaurado = %d ('%s'), indice de contexto = %d", CC71_GlobalTokenNumber, lex, topcontexto);
+    zenith_lowerer_transaction_abort();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CC71_BacktrackingEnd() {
+void zenith_backtracking_end() {
     if (topcontexto > 0) {
         topcontexto--;
         //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[DESEMPILHA] Desempilhando contexto. Token atual = %d ('%s'), novo indice de contexto = %d", CC71_GlobalTokenNumber, lex, topcontexto);
     }
+    zenith_lowerer_transaction_abort();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -82,7 +85,7 @@ void CC71_GetNextChar() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CC71_GetToken() {
+void zenith_get_token() {
     int estado = 0;
     int posl = 0;
 

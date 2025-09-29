@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "lexer.h"
 #include "parser.h"
+#include "lowerer.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // COMPLEMENTARY FUNCTIONS                                                 //
@@ -61,7 +62,9 @@ int main(int argc, char *argv[]) {
 
     columnAux = CC71_GlobalCurrentColumn;
     CC71_GetNextChar(); // Reads the first character of the file.
-    CC71_GetToken();    // Reads the first token.
+    zenith_get_token();    // Reads the first token.
+
+    zenith_lowerer_open_file("data/output/out_3ac.txt");
 
     // Lexical-syntactic recognition.
     if (translation_unit()) {
@@ -70,10 +73,15 @@ int main(int argc, char *argv[]) {
         printf("\nThe source code is not syntactically correct.\n\n");
     }
 
+    zenith_lowerer_close_file();
+
+    //char *t1 = zenith_new_label();
+    //printf("%s\n", t1);
+
     // Lexical recognition.
     /*while (CC71_GlobalTokenNumber != TokenEndOfFile) {
         if (OUTPUT_MODE) insertIntoFile(lex, tokens[CC71_GlobalTokenNumber], line, columnAux);
-        CC71_GetToken();
+        zenith_get_token();
 	}*/
 
 	//if (currentChar == -1) printf("\nThe lexical-syntactic analyzer completed the operations successfully.\n");
