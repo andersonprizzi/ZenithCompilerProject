@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     CC71_GetNextChar(); // Reads the first character of the file.
     zenith_get_token();    // Reads the first token.
 
-    zenith_lowerer_open_file("out_intermediario.txt");
+    zenith_lowerer_open_file("data/output/out_stage_a.txt");
 
     // Lexical-syntactic recognition.
     if (translation_unit()) {

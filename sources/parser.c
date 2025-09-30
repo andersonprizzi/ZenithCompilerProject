@@ -24,6 +24,18 @@
 
 
 /////////////////////////////////////////////////////////////////////////////
+// GLOBAL VARIABLES                                                        //
+/////////////////////////////////////////////////////////////////////////////
+
+/* Valor da expressão precisa ser preservado?
+ * 0 = pode descartar (ex.: i++;, 3ª expressão do for)
+ * 1 = precisa (ex.: a = i++; , x = ++i)
+ */
+static int g_expr_value_discard = 0;
+
+
+
+/////////////////////////////////////////////////////////////////////////////
 // FUNCTION IMPLEMENTATIONS                                                //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -2170,7 +2182,13 @@ int expression_statement() {
         return PARSE_SUCCESS;
     }
 
+    /* valor de 'expr;' é sempre descartado */
+    int saved_discard = g_expr_value_discard;
+    g_expr_value_discard = 1;
+
     if (expression()) {
+        g_expr_value_discard = saved_discard;
+
         if (CC71_GlobalTokenNumber == TokenSemicolon) {
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             zenith_get_token();
@@ -2185,6 +2203,8 @@ int expression_statement() {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "expression_statement()");
         return PARSE_FAIL;
     }
+
+    g_expr_value_discard = saved_discard;
 
     zenith_backtracking_restore();
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "expression_statement()");
@@ -2559,12 +2579,18 @@ int iteration_statement() {
             Lpost = zenith_new_label();
             zenith_lowerer_emit_label(Lpost);
 
+            int saved = g_expr_value_discard;
+            g_expr_value_discard = 1;
+
             if (!expression()) {
+                g_expr_value_discard = saved;
                 zenith_lowerer_transaction_abort();
                 zenith_backtracking_restore();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
                 return PARSE_FAIL;
             }
+
+            g_expr_value_discard = saved;
             zenith_lowerer_emit_goto(Lcond);
         }
 
@@ -3803,7 +3829,35 @@ int unary_expression() {
 
     zenith_backtracking_start();
 
-    if (CC71_GlobalTokenNumber == TokenIncrement) {
+    if (CC71_GlobalTokenNumber == TokenIncrement) {      // ++E (prefix)
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+        zenith_get_token();
+
+        if (!unary_expression()) { /* parse do operando (lvalue) */
+            zenith_backtracking_restore();
+            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "unary_expression()");
+            return PARSE_FAIL;
+        }
+
+        /* IR: ++i -> t := i + 1; i := t; (valor da expr = i) */
+        if (g_last_place_valid && PlaceIsSimpleIdentifier(g_last_place.place)) {
+            zenith_lowerer_transaction_begin();
+            char* t = zenith_new_temp();
+            zenith_lowerer_emit_add(t, g_last_place.place, "1");
+            zenith_lowerer_emit_assign(g_last_place.place, t);
+            if (!g_expr_value_discard) {
+                /* o valor de ++i é o NOVO valor */
+                PlaceCaptureProvide(g_last_place.place);
+            }
+            free(t);
+            zenith_lowerer_transaction_commit();
+        }
+        zenith_backtracking_end();
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression() (prefix ++)"); 
+        return PARSE_SUCCESS;
+    }
+
+    if (CC71_GlobalTokenNumber == TokenDecrement) {      // --E (prefix)
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
 
@@ -3813,25 +3867,23 @@ int unary_expression() {
             return PARSE_FAIL;
         }
 
-        zenith_backtracking_end();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression() (prefix ++)");
-        return PARSE_SUCCESS;
-    }
-
-    if (CC71_GlobalTokenNumber == TokenDecrement) {
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
-        zenith_get_token();
-
-        if (!unary_expression()) {
-            zenith_backtracking_restore();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "unary_expression()");
-            return PARSE_FAIL;
+        /* IR: --i -> t := i - 1; i := t; (valor da expr = i) */
+        if (g_last_place_valid && PlaceIsSimpleIdentifier(g_last_place.place)) {
+            zenith_lowerer_transaction_begin();
+            char* t = zenith_new_temp();
+            zenith_lowerer_emit_sub(t, g_last_place.place, "1");
+            zenith_lowerer_emit_assign(g_last_place.place, t);
+            if (!g_expr_value_discard) {
+                PlaceCaptureProvide(g_last_place.place);
+            }
+            free(t);
+            zenith_lowerer_transaction_commit();
         }
-
         zenith_backtracking_end();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression() (prefix --)");
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "unary_expression() (prefix --)"); 
         return PARSE_SUCCESS;
     }
+
 
     if (unary_operator()) {
         if (!cast_expression()) {
@@ -4050,46 +4102,62 @@ int postfix_expression_suffix() {
         return PARSE_SUCCESS;
     }
 
-    if (CC71_GlobalTokenNumber == TokenIncrement) {
+    if (CC71_GlobalTokenNumber == TokenIncrement) {   // E++ (postfix)
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
 
-        zenith_lowerer_transaction_begin(); // [IR]
+        if (g_last_place_valid && PlaceIsSimpleIdentifier(g_last_place.place)) {
+            zenith_lowerer_transaction_begin();
+            char* tnew = zenith_new_temp();
 
-        if (g_last_place_valid && PlaceIsSimpleIdentifier(g_last_place.place)) { // [IR]
-            char* oldv = zenith_new_temp();  // guarda valor antigo
-            char* tmp  = zenith_new_temp();  // valor novo (i + 1)
+            /* i++: tnew := i + 1; i := tnew; 
+            Se o valor da expressão é necessário, old := tnew - 1; result = old */
+            zenith_lowerer_emit_add(tnew, g_last_place.place, "1");
+            zenith_lowerer_emit_assign(g_last_place.place, tnew);
 
-            // old := i
-            zenith_lowerer_emit_assign(oldv, g_last_place.place);
-            // tmp := i + 1
-            zenith_lowerer_emit_add(tmp, g_last_place.place, "1");
-            // i := tmp
-            zenith_lowerer_emit_assign(g_last_place.place, tmp);
+            if (!g_expr_value_discard) {
+                char* oldv = zenith_new_temp();
+                zenith_lowerer_emit_sub(oldv, tnew, "1");
+                PlaceCaptureProvide(oldv);
+                free(oldv);
+            }
 
-            //printf("[IR][posfix ++] lines=%d last='%s'\n", zenith_lowerer_debug_line_count(), zenith_lowerer_debug_last_line());
-
-            // O valor DA EXPRESSÃO (i++) é o antigo:
-            PlaceCaptureProvide(oldv);
-
-            free(tmp);
-            free(oldv);
+            free(tnew);
+            zenith_lowerer_transaction_commit();
         }
-        // Caso não seja lvalue simples (ex.: (*p)++ ou a[i]++), deixamos sem emitir por enquanto.
-
-        zenith_lowerer_transaction_commit();
-
 
         zenith_backtracking_end();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_suffix()");
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_suffix() (postfix ++)");
         return PARSE_SUCCESS;
     }
+
 
     if (CC71_GlobalTokenNumber == TokenDecrement) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
+
+        if (g_last_place_valid && PlaceIsSimpleIdentifier(g_last_place.place)) {
+            zenith_lowerer_transaction_begin();
+            char* tnew = zenith_new_temp();
+
+            /* i--: tnew := i - 1; i := tnew;
+            Se o valor da expressão é necessário, old := tnew + 1; result = old */
+            zenith_lowerer_emit_sub(tnew, g_last_place.place, "1");
+            zenith_lowerer_emit_assign(g_last_place.place, tnew);
+
+            if (!g_expr_value_discard) {
+                char* oldv = zenith_new_temp();
+                zenith_lowerer_emit_add(oldv, tnew, "1");
+                PlaceCaptureProvide(oldv);
+                free(oldv);
+            }
+
+            free(tnew);
+            zenith_lowerer_transaction_commit();
+        }
+
         zenith_backtracking_end();
-        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_suffix()");
+        CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_suffix() (postfix --)");
         return PARSE_SUCCESS;
     }
 

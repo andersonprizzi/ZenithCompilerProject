@@ -37,18 +37,73 @@ static void ir_set_place(PlaceType* v, const char* s) {
  * @note Linhas não incluem '\n' aqui; adicionamos no dump.
  */
 static void ir_append_line(const char* format, ...) {
-    if (ir.line_count >= IR_MAX_LINES) {
-        /* Se quiser, troque por realocação dinâmica + abort se falhar */
+    if (ir.line_count >= IR_MAX_LINES) return;
+
+    /* 1) Formata em buf */
+    char buf[IR_MAX_LINE_LENGTH];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buf, sizeof(buf), format, args);
+    va_end(args);
+
+    /* 2) Classifica a linha */
+    const char* s = buf;
+    while (*s == ' ' || *s == '\t') s++;      /* trim left simples */
+
+    size_t len = strlen(s);
+    int is_empty = (len == 0);
+
+    /* "label" = termina com ':' e não tem espaços no conteúdo */
+    int is_label = 0;
+    if (!is_empty) {
+        size_t end = len;
+        while (end > 0 && (s[end - 1] == ' ' || s[end - 1] == '\t')) end--; /* trim right */
+        if (end > 0 && s[end - 1] == ':') {
+            int has_space = 0;
+            for (size_t k = 0; k + 1 < end; ++k) {
+                if (s[k] == ' ' || s[k] == '\t') { has_space = 1; break; }
+            }
+            if (!has_space) is_label = 1;
+        }
+    }
+
+    /* 3) Se é label, insere linha em branco antes (se a última não for vazia) */
+    if (is_label) {
+        if (ir.line_count > 0) {
+            const char* last = ir.lines[ir.line_count - 1].text;
+            if (last[0] != '\0') {
+                ir.lines[ir.line_count].text[0] = '\0';  /* linha vazia */
+                ir.line_count++;
+            }
+        }
+        /* grava label SEM indentação */
+        strncpy(ir.lines[ir.line_count].text, s, IR_MAX_LINE_LENGTH - 1);
+        ir.lines[ir.line_count].text[IR_MAX_LINE_LENGTH - 1] = '\0';
+        ir.line_count++;
+
+        /* ativa indentação para as próximas instruções */
+        ir_indent_active = 1;
         return;
     }
 
-    va_list args;
-    va_start(args, format);
-    vsnprintf(ir.lines[ir.line_count].text, IR_MAX_LINE_LENGTH, format, args);
-    va_end(args);
+    /* 4) Instruções: indenta se estamos após uma label e a linha não é vazia */
+    if (ir_indent_active && !is_empty) {
+        size_t ind_len  = strlen(IR_INDENT);
+        size_t copy_len = strlen(s);
+        if (ind_len + copy_len >= IR_MAX_LINE_LENGTH) {
+            copy_len = IR_MAX_LINE_LENGTH - ind_len - 1;
+        }
+        memcpy(ir.lines[ir.line_count].text, IR_INDENT, ind_len);
+        memcpy(ir.lines[ir.line_count].text + ind_len, s, copy_len);
+        ir.lines[ir.line_count].text[ind_len + copy_len] = '\0';
+    } else {
+        strncpy(ir.lines[ir.line_count].text, s, IR_MAX_LINE_LENGTH - 1);
+        ir.lines[ir.line_count].text[IR_MAX_LINE_LENGTH - 1] = '\0';
+    }
 
     ir.line_count++;
 }
+
 
 
 

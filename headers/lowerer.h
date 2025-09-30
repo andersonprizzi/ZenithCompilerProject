@@ -2,6 +2,12 @@
 #define LOWERER_H_INCLUDED
 
 
+/* === Formatting state === */
+static int ir_indent_active = 0;       /* 1: estamos dentro do bloco de uma label */
+#ifndef IR_INDENT
+    #define IR_INDENT "\t"
+#endif
+
 
 enum {
     IR_MAX_LINES             = 200000,  /* nº máx. de linhas TAC em memória */
