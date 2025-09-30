@@ -2,11 +2,25 @@
 #define LOWERER_H_INCLUDED
 
 
-/* === Formatting state === */
-static int ir_indent_active = 0;       /* 1: estamos dentro do bloco de uma label */
+// Formatting state
+static int ir_indent_active = 0;
 #ifndef IR_INDENT
     #define IR_INDENT "\t"
 #endif
+
+// Registro de variáveis para cabeçalho de declarações
+#ifndef IR_MAX_VARS
+    #define IR_MAX_VARS 2048
+#endif
+#ifndef IR_MAX_NAME
+    #define IR_MAX_NAME 128
+#endif
+
+// Captura de place.
+#ifndef PLACE_CAPTURE_STACK_MAX
+    #define PLACE_CAPTURE_STACK_MAX 128
+#endif
+
 
 
 enum {
@@ -16,10 +30,12 @@ enum {
 };
 
 
-/** Uma linha de TAC (texto já formatado) */
+
+/** Uma linha de C3E */
 typedef struct {
     char text[IR_MAX_LINE_LENGTH];
 } IRLine;
+
 
 
 typedef struct {
@@ -27,22 +43,30 @@ typedef struct {
 } PlaceType;
 
 
+static PlaceType* g_place_capture_stack[PLACE_CAPTURE_STACK_MAX];
+static int g_place_capture_depth = 0;
+
+
+static char var_names[IR_MAX_VARS][IR_MAX_NAME];
+static int  var_is_temp[IR_MAX_VARS];
+static int  var_count = 0;
+
+
+
 /** Estado global do emissor */
 typedef struct {
     /* Buffer de linhas de TAC acumuladas em memória */
     IRLine lines[IR_MAX_LINES];
-    int    line_count;
+    int line_count;
 
     /* Pilha de marcas de transação (cada marca guarda o line_count de início) */
-    int    transaction_mark_stack[IR_MAX_TRANSACTION_DEPTH];
-    int    transaction_depth;
+    int transaction_mark_stack[IR_MAX_TRANSACTION_DEPTH];
+    int transaction_depth;
 
     /* Saída em arquivo */
-    FILE*  output_file;
-    char   output_path[260]; /* caminho opcional; 260 cobre o comum no Windows */
+    FILE* output_file;
+    char output_path[260]; /* caminho opcional; 260 cobre o comum no Windows */
 } IRState;
-
-
 
 static IRState ir;
 
@@ -107,34 +131,9 @@ void zenith_lowerer_emit_ne(const char* dst, const char* a, const char* b);
 
 
 
-
-
-
-/* ======================= Canal de captura de resultado (place) ======================= */
-/* Quem QUER capturar o resultado de uma subexpressão:
-     PlaceType v;
-     if (!PlaceCaptureBegin(&v)) return PARSE_FAIL;
-     if (!unary_expression()) { PlaceCaptureEnd(); return PARSE_FAIL; }
-     PlaceCaptureEnd();
-     // agora v.place contém o nome do resultado
-
-   Quem PODE fornecer um resultado (primary/postfix/ops com temporário):
-     PlaceCaptureProvide(lex);           // exemplo para id/const
-     // ou
-     PlaceCaptureProvide(tempName);      // após gerar t := a + b
-*/
-
-#ifndef PLACE_CAPTURE_STACK_MAX
-#define PLACE_CAPTURE_STACK_MAX 128
-#endif
-
-static PlaceType* g_place_capture_stack[PLACE_CAPTURE_STACK_MAX];
-static int g_place_capture_depth = 0;
-
 /* Inicia a captura do próximo "place".
    Retorna 1 em sucesso, 0 se 'out' for NULL ou se a pilha estiver cheia. */
-static int PlaceCaptureBegin(PlaceType* out)
-{
+static int PlaceCaptureBegin(PlaceType* out) {
     if (!out) return 0;
     if (g_place_capture_depth >= PLACE_CAPTURE_STACK_MAX) return 0;
     g_place_capture_stack[g_place_capture_depth++] = out;
@@ -143,8 +142,7 @@ static int PlaceCaptureBegin(PlaceType* out)
 
 /* Encerra a captura iniciada por PlaceCaptureBegin().
    Se não houver captura ativa, simplesmente não faz nada. */
-static void PlaceCaptureEnd(void)
-{
+static void PlaceCaptureEnd(void) {
     if (g_place_capture_depth > 0) {
         --g_place_capture_depth;
     }
@@ -188,22 +186,6 @@ static void PlaceCaptureProvide(const char* place_name)
 }
 
 
-/*
-static void PlaceCaptureProvide(const char* place_name) {
-    if (!place_name) return;
-
-    g_last_place_valid = 1;
-    snprintf(g_last_place.place, sizeof(g_last_place.place), "%s", place_name);
-
-    if (g_capture_sp > 0 && g_capture_stack[g_capture_sp-1]) {
-        snprintf(g_capture_stack[g_capture_sp-1]->place,
-                 sizeof(g_capture_stack[g_capture_sp-1]->place),
-                 "%s", name);
-    }
-}
-
-*/
-
 /* Retorna 1 se 's' parece um identificador simples de C (ASCII), 0 caso contrário. */
 static int PlaceIsSimpleIdentifier(const char* s)
 {
@@ -221,13 +203,5 @@ static int PlaceIsSimpleIdentifier(const char* s)
     }
     return 1;
 }
-
-
-int zenith_lowerer_debug_line_count(void);
-
-int zenith_lowerer_debug_writes_to_stdout(void);
-
-const char* zenith_lowerer_debug_last_line(void);
-
 
 #endif

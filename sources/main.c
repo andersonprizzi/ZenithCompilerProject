@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     if (!CC71_ValidateFilePointers()) return 1;
 
     columnAux = CC71_GlobalCurrentColumn;
-    CC71_GetNextChar(); // Reads the first character of the file.
+    CC71_GetNextChar();    // Reads the first character of the file.
     zenith_get_token();    // Reads the first token.
 
     zenith_lowerer_open_file("data/output/out_stage_a.txt");
@@ -72,9 +72,6 @@ int main(int argc, char *argv[]) {
     } else {
         printf("\nThe source code is not syntactically correct.\n\n");
     }
-
-    //printf("[IR] linhas acumuladas: %d\n", zenith_lowerer_debug_line_count());
-    //printf("[IR] destino: %s\n", zenith_lowerer_debug_writes_to_stdout() ? "stdout" : "arquivo");
 
     zenith_lowerer_close_file();
 

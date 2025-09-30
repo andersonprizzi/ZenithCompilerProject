@@ -1,0 +1,38 @@
+int i
+int j
+int a
+int b
+int c
+int T.0000
+int T.0001
+int T.0002
+int T.0003
+int T.0004
+int T.0005
+int T.0006
+
+i := 0
+j := 5
+goto L.0000
+
+L.0000:
+	T.0000 := i < 10
+	gototrue T.0000, L.0002
+	goto L.0001
+
+L.0003:
+	T.0002 := i + 1
+	i := T.0002
+	T.0004 := j - 1
+	j := T.0004
+	goto L.0000
+
+L.0002:
+	a := 2
+	T.0005 := a + 3
+	b := T.0005
+	T.0006 := c + b
+	c := T.0006
+	goto L.0003
+
+L.0001:
