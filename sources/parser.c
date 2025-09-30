@@ -2165,6 +2165,7 @@ int expression_statement() {
     if (CC71_GlobalTokenNumber == TokenSemicolon) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
+        zenith_backtracking_end(); // TODO: Adicionei depois, testar ver se não é problema.
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "expression_statement()");
         return PARSE_SUCCESS;
     }
@@ -2173,6 +2174,7 @@ int expression_statement() {
         if (CC71_GlobalTokenNumber == TokenSemicolon) {
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             zenith_get_token();
+            zenith_backtracking_end();  // TODO: Adicionei depois, testar ver se não é problema.
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "expression_statement()");
             return PARSE_SUCCESS;
         }
@@ -2478,6 +2480,8 @@ int iteration_statement() {
         return PARSE_SUCCESS;
     }
 
+
+    
     if (CC71_GlobalTokenNumber == TokenFor) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
@@ -2492,54 +2496,111 @@ int iteration_statement() {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
 
+        /* Rótulos do loop */
+        char* Lcond = zenith_new_label();
+        char* Lend  = zenith_new_label();
+        char* Lpost = NULL;   /* existe só se tiver 3ª expressão */
+        char* Lbody = zenith_new_label();
+
+        /* Transação maior: aborta tudo do for se der erro no meio */
+        zenith_lowerer_transaction_begin();
+
+        /* (1) init: expression_statement() (aceita ';' vazio) */
         if (!expression_statement()) {
+            zenith_lowerer_transaction_abort();
             zenith_backtracking_restore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
         }
 
-        if (!expression_statement()) {
-            zenith_backtracking_restore();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
-            return PARSE_FAIL;
-        }
+        /* (2) entrada: pula para o teste e já EMITE o rótulo da condição
+        antes de parsear a condição, para que a comparação saia logo abaixo. */
+        zenith_lowerer_emit_goto(Lcond);
+        zenith_lowerer_emit_label(Lcond);
 
-        if (CC71_GlobalTokenNumber == TokenCloseParentheses) {
+        /* (3) condição: pode ser vazia (apenas ';') ou uma expressão seguida de ';' */
+        int  has_cond = 0;
+        int  cond_is_empty = (CC71_GlobalTokenNumber == TokenSemicolon);
+        char cond_place[64] = "1";
+
+        if (cond_is_empty) {
+            /* consome ';' e cai no corpo sempre */
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
             zenith_get_token();
-
-            if (!statement()) {
+        } else {
+            /* gera IR da comparação AQUI, logo após Lcond */
+            if (!expression_statement()) {
+                zenith_lowerer_transaction_abort();
                 zenith_backtracking_restore();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
                 return PARSE_FAIL;
             }
-
-            zenith_backtracking_end();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "iteration_statement()");
-            return PARSE_SUCCESS;
+            if (g_last_place_valid) {
+                strncpy(cond_place, g_last_place.place, sizeof(cond_place)-1);
+                cond_place[sizeof(cond_place)-1] = '\0';
+                has_cond = 1;
+            }
         }
 
-        if (!expression()) {
-            zenith_backtracking_restore();
-            CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
-            return PARSE_FAIL;
+        /* (4) Emite os saltos baseados na condição já gerada acima */
+        if (has_cond) {
+            /* T := (10 > i), etc. já saiu; agora só o branching. */
+            zenith_lowerer_emit_gototrue(cond_place, Lbody);
+            zenith_lowerer_emit_goto(Lend);
+        } else {
+            /* condição vazia => entra sempre no corpo */
+            zenith_lowerer_emit_goto(Lbody);
         }
 
+        /* (5) incremento (post): se houver, coloque-o AGORA, num bloco próprio,
+        antes do corpo no texto (como no seu esboço), e mande voltar para Lcond. */
+        int had_post = (CC71_GlobalTokenNumber != TokenCloseParentheses);
+        if (had_post) {
+            Lpost = zenith_new_label();
+            zenith_lowerer_emit_label(Lpost);
+
+            if (!expression()) {
+                zenith_lowerer_transaction_abort();
+                zenith_backtracking_restore();
+                CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
+                return PARSE_FAIL;
+            }
+            zenith_lowerer_emit_goto(Lcond);
+        }
+
+        /* Fecha cabeçalho do for: precisa de ')' agora */
         if (CC71_GlobalTokenNumber != TokenCloseParentheses) {
             CC71_ReportExpectedTokenError(TokenCloseParentheses, FORCE_ERROR_THROW);
+            zenith_lowerer_transaction_abort();
             zenith_backtracking_restore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
         }
-
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
 
+        /* (6) corpo */
+        zenith_lowerer_emit_label(Lbody);
         if (!statement()) {
+            zenith_lowerer_transaction_abort();
             zenith_backtracking_restore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "iteration_statement()");
             return PARSE_FAIL;
         }
+
+        /* (7) volta: do corpo para o post (se houver) ou direto pro teste */
+        if (Lpost) zenith_lowerer_emit_goto(Lpost);
+        else       zenith_lowerer_emit_goto(Lcond);
+
+        /* (8) fim do laço */
+        zenith_lowerer_emit_label(Lend);
+
+        zenith_lowerer_transaction_commit();
+
+        if (Lpost) free(Lpost);
+        free(Lcond);
+        free(Lbody);
+        free(Lend);
 
         zenith_backtracking_end();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "iteration_statement()");
@@ -2808,11 +2869,37 @@ int argument_expression_sequence() {
 int assignment_expression() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "assignment_expression()");
 
+    // TENTATIVA 1: unary_expression assignment_operator assignment_expression
     zenith_backtracking_start();
+    zenith_lowerer_transaction_begin();
+
 
     if (unary_expression()) {
+        // TODO: Melhorar LHS.
+        char lhs[64] = "";
+
+        if (g_last_place_valid) {
+            strncpy(lhs, g_last_place.place, sizeof(lhs)-1);
+            lhs[sizeof(lhs)-1] = '\0';
+        }
+
+        int op_token = CC71_GlobalTokenNumber;
+
         if (assignment_operator()) {
             if (assignment_expression()) {
+                if (lhs[0] && g_last_place_valid) {
+                    if (op_token == TokenAssign) {
+                        zenith_lowerer_emit_assign(lhs, g_last_place.place);
+                    } else if (op_token == TokenPlusAssign) {
+                        char* t = zenith_new_temp();
+                        zenith_lowerer_emit_add(t, lhs, g_last_place.place);
+                        zenith_lowerer_emit_assign(lhs, t);
+                        free(t);
+                    }
+                    PlaceCaptureProvide(lhs);
+                }
+
+                zenith_lowerer_transaction_commit();
                 zenith_backtracking_end();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "assignment_expression()");
                 return PARSE_SUCCESS;
@@ -2830,7 +2917,11 @@ int assignment_expression() {
         }
     }
 
+    zenith_lowerer_transaction_abort();
     zenith_backtracking_restore();
+    zenith_backtracking_start();
+
+    // TENTATIVA 2: conditional_expression
     zenith_backtracking_start();
 
     if (conditional_expression()) {
@@ -3223,6 +3314,10 @@ int equality_expression() {
 
 
 // OK
+/*
+a == b é não (a > b) e não (b > a)
+a != b é (a > b) ou (b > a)
+*/
 int equality_expression_suffix() {
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "equality_expression_suffix()");
 
@@ -3230,20 +3325,86 @@ int equality_expression_suffix() {
 
     if (CC71_GlobalTokenNumber == TokenEqual || CC71_GlobalTokenNumber == TokenNotEqual) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+        int op_token = CC71_GlobalTokenNumber;
         zenith_get_token();
 
+        /* LHS antes do RHS */
+        char lhs[64] = "";
+        if (g_last_place_valid) {
+            strncpy(lhs, g_last_place.place, sizeof(lhs)-1);
+            lhs[sizeof(lhs)-1] = '\0';
+        }
+
+        /* RHS */
         if (!relational_expression()) {
             zenith_backtracking_restore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "equality_expression_suffix()");
             return PARSE_FAIL;
         }
 
+        zenith_lowerer_transaction_begin();
+        if (g_last_place_valid && lhs[0]) {
+            char* dst  = zenith_new_temp();
+            char* tAB  = zenith_new_temp(); /* a > b  */
+            char* tBA  = zenith_new_temp(); /* b > a  */
+
+            if (op_token == TokenEqual) {
+                /* a == b  =>  !(a>b) && !(b>a) */
+                char* Lfalse = zenith_new_label();
+                char* Lend   = zenith_new_label();
+
+                zenith_lowerer_emit_gt(tAB, lhs, g_last_place.place);
+                zenith_lowerer_emit_gototrue(tAB, Lfalse);
+                zenith_lowerer_emit_gt(tBA, g_last_place.place, lhs);
+                zenith_lowerer_emit_gototrue(tBA, Lfalse);
+
+                /* Se passou pelos dois gototrue, então são iguais */
+                zenith_lowerer_emit_assign(dst, "1");
+                zenith_lowerer_emit_goto(Lend);
+
+                zenith_lowerer_emit_label(Lfalse);
+                zenith_lowerer_emit_assign(dst, "0");
+                zenith_lowerer_emit_label(Lend);
+
+                free(Lfalse); free(Lend);
+
+            } else { /* TokenNotEqual */
+                /* a != b  =>  (a>b) || (b>a) */
+                char* Ltrue = zenith_new_label();
+                char* Lend  = zenith_new_label();
+
+                zenith_lowerer_emit_gt(tAB, lhs, g_last_place.place);
+                zenith_lowerer_emit_gototrue(tAB, Ltrue);
+                zenith_lowerer_emit_gt(tBA, g_last_place.place, lhs);
+                zenith_lowerer_emit_gototrue(tBA, Ltrue);
+
+                /* Se nenhum dos dois >, então iguais => 0 */
+                zenith_lowerer_emit_assign(dst, "0");
+                zenith_lowerer_emit_goto(Lend);
+
+                zenith_lowerer_emit_label(Ltrue);
+                zenith_lowerer_emit_assign(dst, "1");
+                zenith_lowerer_emit_label(Lend);
+
+                free(Ltrue); free(Lend);
+            }
+
+            PlaceCaptureProvide(dst);
+
+            free(dst);
+            free(tAB);
+            free(tBA);
+        }
+
+        /* encadeamento: a==b==c … */
         if (!equality_expression_suffix()) {
+            zenith_lowerer_transaction_abort();
             zenith_backtracking_restore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "equality_expression_suffix()");
             return PARSE_FAIL;
         }
 
+        zenith_lowerer_transaction_commit();
         zenith_backtracking_end();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "equality_expression_suffix()");
         return PARSE_SUCCESS;
@@ -3297,20 +3458,73 @@ int relational_expression_suffix() {
         case TokenLessEqual:
         case TokenGreaterEqual:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+            int op_token = CC71_GlobalTokenNumber;
             zenith_get_token();
 
+            // TODO: Melhorar codigo lhs.
+            char lhs[64] = "";
+            if (g_last_place_valid) {
+                strncpy(lhs, g_last_place.place, sizeof(lhs)-1);
+                lhs[sizeof(lhs)-1] = '\0';
+            }
+
+            /* RHS */
             if (!shift_expression()) {
                 zenith_backtracking_restore();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "relational_expression_suffix()");
                 return PARSE_FAIL;
             }
 
+            zenith_lowerer_transaction_begin();
+
+            if (g_last_place_valid && lhs[0]) {
+                char* dst = zenith_new_temp();
+
+                if (op_token == TokenGreaterThan) {
+                    /* dst := lhs > rhs */
+                    zenith_lowerer_emit_gt(dst, lhs, g_last_place.place);
+
+                } else if (op_token == TokenLessThan) {
+                    zenith_lowerer_emit_lt(dst, lhs, g_last_place.place);
+
+                } else if (op_token == TokenLessEqual || op_token == TokenGreaterEqual) {
+                    /* dst := NOT (X > Y) */
+                    char* tcmp = zenith_new_temp();
+                    char* Lfalse = zenith_new_label();
+                    char* Lend  = zenith_new_label();
+
+                    if (op_token == TokenLessEqual) {
+                        zenith_lowerer_emit_le(dst, lhs, g_last_place.place);
+                    } else {
+                        zenith_lowerer_emit_ge(dst, lhs, g_last_place.place);
+                    }
+
+                    /* dst := 1; if (tcmp) goto Lfalse; goto Lend; Lfalse: dst := 0; Lend: */
+                    zenith_lowerer_emit_assign(dst, "1");
+                    zenith_lowerer_emit_gototrue(tcmp, Lfalse);
+                    zenith_lowerer_emit_goto(Lend);
+                    zenith_lowerer_emit_label(Lfalse);
+                    zenith_lowerer_emit_assign(dst, "0");
+                    zenith_lowerer_emit_label(Lend);
+
+                    free(tcmp);
+                    free(Lfalse);
+                    free(Lend);
+                }
+
+                PlaceCaptureProvide(dst);
+                free(dst);
+            }
+
+            /* Sufixo recursivo (para encadear: a < b < c …) */
             if (!relational_expression_suffix()) {
+                zenith_lowerer_transaction_abort();
                 zenith_backtracking_restore();
                 CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "relational_expression_suffix()");
                 return PARSE_FAIL;
             }
 
+            zenith_lowerer_transaction_commit();
             zenith_backtracking_end();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "relational_expression_suffix()");
             return PARSE_SUCCESS;
@@ -3424,12 +3638,31 @@ int additive_expression_suffix() {
 
     if (CC71_GlobalTokenNumber == TokenPlus || CC71_GlobalTokenNumber == TokenMinus) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+        int op_token = CC71_GlobalTokenNumber;
         zenith_get_token();
+
+        // TODO: Melhorar codigo lhs.
+        /* snapshot do lhs antes de consumir o rhs */
+        char lhs[64] = "";
+        if (g_last_place_valid) {
+            strncpy(lhs, g_last_place.place, sizeof(lhs)-1);
+            lhs[sizeof(lhs)-1] = '\0';
+        }
 
         if (!multiplicative_expression()) {
             zenith_backtracking_restore();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_FAILURE, NULL, "additive_expression_suffix()");
             return PARSE_FAIL;
+        }
+
+        /* Emissão do passo atual: (lhs op rhs) */
+        zenith_lowerer_transaction_begin();
+        if (g_last_place_valid && lhs[0]) {
+            char* t = zenith_new_temp();
+            if (op_token == TokenPlus)  zenith_lowerer_emit_add(t, lhs, g_last_place.place);
+            else                        zenith_lowerer_emit_sub(t, lhs, g_last_place.place);
+            PlaceCaptureProvide(t);     /* resultado deste passo vira o novo “lhs” */
+            free(t);
         }
 
         if (!additive_expression_suffix()) {
@@ -3565,7 +3798,7 @@ int cast_expression() {
 
 
 // OK
-int unary_expression() {
+int unary_expression() {   
     CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ENTER_FUNCTION, NULL, "unary_expression()");
 
     zenith_backtracking_start();
@@ -3820,6 +4053,33 @@ int postfix_expression_suffix() {
     if (CC71_GlobalTokenNumber == TokenIncrement) {
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
         zenith_get_token();
+
+        zenith_lowerer_transaction_begin(); // [IR]
+
+        if (g_last_place_valid && PlaceIsSimpleIdentifier(g_last_place.place)) { // [IR]
+            char* oldv = zenith_new_temp();  // guarda valor antigo
+            char* tmp  = zenith_new_temp();  // valor novo (i + 1)
+
+            // old := i
+            zenith_lowerer_emit_assign(oldv, g_last_place.place);
+            // tmp := i + 1
+            zenith_lowerer_emit_add(tmp, g_last_place.place, "1");
+            // i := tmp
+            zenith_lowerer_emit_assign(g_last_place.place, tmp);
+
+            //printf("[IR][posfix ++] lines=%d last='%s'\n", zenith_lowerer_debug_line_count(), zenith_lowerer_debug_last_line());
+
+            // O valor DA EXPRESSÃO (i++) é o antigo:
+            PlaceCaptureProvide(oldv);
+
+            free(tmp);
+            free(oldv);
+        }
+        // Caso não seja lvalue simples (ex.: (*p)++ ou a[i]++), deixamos sem emitir por enquanto.
+
+        zenith_lowerer_transaction_commit();
+
+
         zenith_backtracking_end();
         CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "postfix_expression_suffix()");
         return PARSE_SUCCESS;
@@ -3853,6 +4113,7 @@ int primary_expression() {
         case TokenCharConst:
         case TokenString:
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_ACCEPTED_TOKEN, NULL, CC71_GlobalTokenNumber, lex);
+            PlaceCaptureProvide(lex);
             zenith_get_token();
             CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_EXIT_SUCCESS, NULL, "primary_expression()");
             return PARSE_SUCCESS;

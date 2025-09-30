@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     CC71_GetNextChar(); // Reads the first character of the file.
     zenith_get_token();    // Reads the first token.
 
-    zenith_lowerer_open_file("data/output/out_3ac.txt");
+    zenith_lowerer_open_file("out_intermediario.txt");
 
     // Lexical-syntactic recognition.
     if (translation_unit()) {
@@ -73,10 +73,10 @@ int main(int argc, char *argv[]) {
         printf("\nThe source code is not syntactically correct.\n\n");
     }
 
-    zenith_lowerer_close_file();
+    //printf("[IR] linhas acumuladas: %d\n", zenith_lowerer_debug_line_count());
+    //printf("[IR] destino: %s\n", zenith_lowerer_debug_writes_to_stdout() ? "stdout" : "arquivo");
 
-    //char *t1 = zenith_new_label();
-    //printf("%s\n", t1);
+    zenith_lowerer_close_file();
 
     // Lexical recognition.
     /*while (CC71_GlobalTokenNumber != TokenEndOfFile) {

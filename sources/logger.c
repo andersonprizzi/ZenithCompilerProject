@@ -32,7 +32,6 @@
 void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char* format, ...) {
     return;
 
-    /*
     const char *levelStr;
     const char *eventStr; 
     const char *color;
@@ -79,5 +78,4 @@ void CC71_LogMessage(CC71_LogLevel logLevel, CC71_LogEvent logEvent, const char*
 
     fflush(stderr);
     va_end(args);
-    */
 }

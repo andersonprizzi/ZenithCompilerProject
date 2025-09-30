@@ -33,7 +33,7 @@ void zenith_backtracking_start() {
     strcpy(pilhacon[topcontexto].lexant, lex);
     topcontexto++;
     //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[EMPILHA] Current token = %d ('%s'); context index = %d;", CC71_GlobalTokenNumber, lex, topcontexto);
-    zenith_lowerer_transaction_begin();
+    //zenith_lowerer_transaction_begin();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ void zenith_backtracking_restore() {
     CC71_GlobalTokenNumber = pilhacon[topcontexto].tkant;
     strcpy(lex, pilhacon[topcontexto].lexant);
     //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[DESEMPILHA] token restaurado = %d ('%s'), indice de contexto = %d", CC71_GlobalTokenNumber, lex, topcontexto);
-    zenith_lowerer_transaction_abort();
+    //zenith_lowerer_transaction_abort();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ void zenith_backtracking_end() {
         topcontexto--;
         //CC71_LogMessage(CC71_LOG_DEBUG, CC71_LOG_EVENT_GENERIC, "[DESEMPILHA] Desempilhando contexto. Token atual = %d ('%s'), novo indice de contexto = %d", CC71_GlobalTokenNumber, lex, topcontexto);
     }
-    zenith_lowerer_transaction_abort();
+    //zenith_lowerer_transaction_abort();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -155,15 +155,17 @@ void zenith_get_token() {
                 if ((currentChar >= '0') && (currentChar <= '9')) {
                     int isFloat = FALSE;
                     int hasDigitsAfterDot = FALSE;
+                    
+                    CC71_GetNextChar();
 
-                    // Parses the integer part of the numeric literal.
+                    // Captura os demais dígitos da parte inteira.
                     while (currentChar >= '0' && currentChar <= '9') {
                         if (posl < MAX_TOKEN_LENGTH - 1)
                             lex[posl++] = currentChar;
                         CC71_GetNextChar();
                     }
 
-                    // Parses the decimal part of the floating-point literal.
+                    // Parte decimal opcional.
                     if (currentChar == '.') {
                         isFloat = TRUE;
                         if (posl < MAX_TOKEN_LENGTH - 1) lex[posl++] = currentChar;
@@ -176,7 +178,8 @@ void zenith_get_token() {
                         }
 
                         if (!hasDigitsAfterDot) {
-                            CC71_ReportError(CC71_ERR_LEX_INVALID_CHAR, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn, "Unexpected character '%c' (ASCII %d).", currentChar, currentChar);
+                            CC71_ReportError(CC71_ERR_LEX_INVALID_CHAR, CC71_GlobalCurrentLine, CC71_GlobalCurrentColumn,
+                                            "Unexpected character '%c' (ASCII %d).", currentChar, currentChar);
                             CC71_GlobalTokenNumber = -1;
                             return;
                         }

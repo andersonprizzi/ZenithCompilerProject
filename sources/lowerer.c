@@ -7,11 +7,16 @@
 
 
 
-enum {
-    IR_MAX_LINES             = 200000,  /* nº máx. de linhas TAC em memória */
-    IR_MAX_LINE_LENGTH       = 256,     /* tamanho máx. de uma linha TAC    */
-    IR_MAX_TRANSACTION_DEPTH = 512      /* profundidade máx. begin/abort/commit */
-};
+int zenith_lowerer_debug_line_count(void) { return ir.line_count; }
+
+int zenith_lowerer_debug_writes_to_stdout(void) {
+    return ir.output_file == NULL || ir.output_file == stdout;
+}
+
+const char* zenith_lowerer_debug_last_line(void) {
+    if (ir.line_count <= 0) return "<none>";
+    return ir.lines[ir.line_count - 1].text;
+}
 
 
 
@@ -19,32 +24,10 @@ enum {
 
 
 
-
-/** Uma linha de TAC (texto já formatado) */
-typedef struct {
-    char text[IR_MAX_LINE_LENGTH];
-} IRLine;
-
-/** Estado global do emissor */
-typedef struct {
-    /* Buffer de linhas de TAC acumuladas em memória */
-    IRLine lines[IR_MAX_LINES];
-    int    line_count;
-
-    /* Pilha de marcas de transação (cada marca guarda o line_count de início) */
-    int    transaction_mark_stack[IR_MAX_TRANSACTION_DEPTH];
-    int    transaction_depth;
-
-    /* Saída em arquivo */
-    FILE*  output_file;
-    char   output_path[260]; /* caminho opcional; 260 cobre o comum no Windows */
-} IRState;
-
-static IRState ir; /* estado único deste módulo (escopo de arquivo) */
-
-
-
-
+static void ir_set_place(PlaceType* v, const char* s) {
+    strncpy(v->place, s, sizeof(v->place));
+    v->place[sizeof(v->place) - 1] = '\0';
+}
 
 
 
@@ -67,6 +50,9 @@ static void ir_append_line(const char* format, ...) {
     ir.line_count++;
 }
 
+
+
+
 /** @brief Grava o buffer acumulado no arquivo de saída. */
 static void ir_dump_to_file(FILE* f) {
     for (int i = 0; i < ir.line_count; ++i) {
@@ -74,6 +60,8 @@ static void ir_dump_to_file(FILE* f) {
         fputc('\n', f);
     }
 }
+
+
 
 /** @brief Reinicia o estado (linhas e transações), mantendo o arquivo fechado. */
 static void ir_reset_memory(void) {
@@ -113,6 +101,8 @@ void zenith_lowerer_open_file(const char* path) {
     /* Limpamos o buffer de IR para iniciar uma nova compilação */
     ir_reset_memory();
 }
+
+
 
 void zenith_lowerer_close_file(void) {
     /* Se por alguma razão ninguém chamou open_file, default para stdout */
@@ -154,20 +144,25 @@ void zenith_lowerer_close_file(void) {
  *
  * Use isto em sincronia com BacktrackingStart().
  */
-void zenith_lowerer_transaction_begin(void) {
+void zenith_lowerer_transaction_begin(void){
     if (ir.transaction_depth < IR_MAX_TRANSACTION_DEPTH) {
         ir.transaction_mark_stack[ir.transaction_depth++] = ir.line_count;
+        fprintf(stderr, "[IR] begin depth=%d mark=%d\n", ir.transaction_depth, ir.line_count);
     }
 }
+
+
 
 /**
  * @brief Descarta tudo que foi emitido desde o último begin().
  *
  * Use isto em sincronia com BacktrackingRestore().
  */
-void zenith_lowerer_transaction_abort(void) {
+void zenith_lowerer_transaction_abort(void){
     if (ir.transaction_depth > 0) {
-        ir.line_count = ir.transaction_mark_stack[--ir.transaction_depth];
+        int to = ir.transaction_mark_stack[--ir.transaction_depth];
+        fprintf(stderr, "[IR] abort depth=%d from=%d to=%d\n", ir.transaction_depth, ir.line_count, to);
+        ir.line_count = to;
     }
 }
 
@@ -176,9 +171,10 @@ void zenith_lowerer_transaction_abort(void) {
  *
  * Use isto em sincronia com BacktrackingEnd().
  */
-void zenith_lowerer_transaction_commit(void) {
+void zenith_lowerer_transaction_commit(void){
     if (ir.transaction_depth > 0) {
-        --ir.transaction_depth; /* nada a fazer: as linhas já estão no buffer */
+        --ir.transaction_depth;
+        fprintf(stderr, "[IR] commit depth=%d keep=%d\n", ir.transaction_depth, ir.line_count);
     }
 }
 
@@ -223,3 +219,24 @@ void zenith_lowerer_emit_goto(const char* label) {
 void zenith_lowerer_emit_ifnz_goto(const char* cond, const char* label) {
     ir_append_line("if %s != 0 goto %s", cond, label);
 }
+
+
+
+void zenith_lowerer_emit_ifz_goto(const char* cond, const char* label) {
+    ir_append_line("if %s == 0 goto %s", cond, label);
+}
+
+void zenith_lowerer_emit_gototrue(const char* cond, const char* label) {
+    ir_append_line("gototrue %s, %s", cond, label);
+}
+
+void zenith_lowerer_emit_gt(const char* dst, const char* a, const char* b) {
+    ir_append_line("%s := %s > %s", dst, a, b);
+}
+
+void zenith_lowerer_emit_lt(const char* dst, const char* a, const char* b) { ir_append_line("%s := %s < %s", dst, a, b); }
+void zenith_lowerer_emit_le(const char* dst, const char* a, const char* b) { ir_append_line("%s := %s <= %s", dst, a, b); }
+void zenith_lowerer_emit_ge(const char* dst, const char* a, const char* b) { ir_append_line("%s := %s >= %s", dst, a, b); }
+void zenith_lowerer_emit_eq(const char* dst, const char* a, const char* b) { ir_append_line("%s := %s == %s", dst, a, b); }
+void zenith_lowerer_emit_ne(const char* dst, const char* a, const char* b) { ir_append_line("%s := %s != %s", dst, a, b); }
+

@@ -103,7 +103,7 @@ int CC71_FLAG_ERROR = 0;
 int CC71_FLAG_FORCE = 0;
 
 int CC71_ReportError(CC71_ErrorCode code, int line, int column, const char* fmt, ...) {
-    if (CC71_SilentMode > 0 && !CC71_FLAG_FORCE) return;
+    if (CC71_SilentMode > 0 && !CC71_FLAG_FORCE) return; // FIX ME
 
     const CC71_ErrorEntry* entry = CC71_GetErrorEntry(code);
     const char* errorType = entry ? CC71_GetErrorType(entry->type) : "Unknown Error";
